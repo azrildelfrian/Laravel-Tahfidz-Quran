@@ -20,7 +20,7 @@
                             <div class="col-md-12 mb-3">
                             <div class="form-group">
                             <label for="example-text-input" class="form-control-label">Nama Santri</label>
-                            <select name="user_id" id="nama_santri" class="form-control">
+                            <select name="user_id" id="nama_santri" class="form-control" required>
                                 <option value="">=== Pilih Santri ===</option>
                                 @foreach ($users as $item)
                                     @if ($item->role === 'santri')
@@ -40,7 +40,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="example-text-input" class="form-control-label">Surat</label>
-                                    <select name="surat_id" id="surat_1" class="form-control">
+                                    <select name="surat_id" id="surat_1" class="form-control" required>
                                         <option value="">=== Silahkan Pilih Surat ===</option>
                                         @foreach ($surat as $item)
                                             <option value="{{ $item->id }}">{{ $item->nama_surat }} - {{ $item->ayat }} ayat</option>
@@ -51,7 +51,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="example-text-input" class="form-control-label">Ayat</label>
-                                    <input name="ayat_setoran_1" class="form-control" type="number" value="" placeholder="Masukkan ayat" required>
+                                    <input name="ayat_setoran_1" class="form-control" type="number" value="" placeholder="Masukkan ayat" min="1" required>
                                 </div>
                             </div>
                         </div>
@@ -61,7 +61,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="example-text-input" class="form-control-label">Surat</label>
-                                    <select name="surat_id_2" id="surat_2" class="form-control">
+                                    <select name="surat_id_2" id="surat_2" class="form-control" required>
                                         <option value="">=== Silahkan Pilih Surat ===</option>
                                         @foreach ($surat as $item)
                                             <option value="{{ $item->id }}">{{ $item->nama_surat }} - {{ $item->ayat }} ayat</option>
@@ -96,5 +96,10 @@
 @push('script')
 <script>
     $('#surat_1, #surat_2, #nama_santri').select2();
+    document.getElementById('surat_2').addEventListener('change', function() {
+        var selectedSurat = this.options[this.selectedIndex];
+        var jumlahAyat = selectedSurat.getAttribute('jumlah_ayat');
+        document.getElementById('ayat_setoran_2').setAttribute('max', jumlahAyat);
+    });
 </script>
 @endpush

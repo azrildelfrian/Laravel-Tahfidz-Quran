@@ -10,8 +10,10 @@ class Hafalan extends Model
     use HasFactory;
 
     protected $table = 'hafalan';
-
     protected $guarded = ['id'];
+    // protected $fillable = [
+    //     'name', 'email', 'password',
+    // ];
 
     public function surat_1()
     {

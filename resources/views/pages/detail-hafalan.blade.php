@@ -7,7 +7,11 @@
                     <div class="col-md-4">
                     <div class="mb-3">
                       <label for="NamaSantri" class="form-label">Nama Santri</label>
-                      <p>{{ $hafalan->user->name }}</p>
+                      @if($hafalan->user->trashed())
+                          <p><strong>{{ $hafalan->user->name }}</strong> <i>(Akun telah dihapus)</i></p>
+                      @else
+                          <p><strong>{{ $hafalan->user->name }}</strong></p>
+                      @endif
                     </div>
                     <div class="mb-3">
                       <label for="Surat" class="form-label">Surat Hafalan</label>
@@ -19,14 +23,20 @@
                     <div class="col-md-4">
                     <div class="mb-3">
                       <label for="NamaSantri" class="form-label">Status</label>
-                      <p>{{ $hafalan->status }}</p>
+                      @if($hafalan->status === 'sudah diperiksa')
+                      <p>Sudah Diperiksa</p>
+                      @elseif($hafalan->status === 'belum diperiksa')
+                      <p>Belum Diperiksa</p>
+                      @else
+                      <p>-</p>
+                      @endif
                     </div>
                     <div class="mb-3">
                       <label for="NamaSantri" class="form-label">Kelancaran</label>
                       @if($hafalan->kelancaran)
                       <p>{{ $hafalan->kelancaran }}</p>
                       @else
-                      <p>Belum Diperiksa</p>
+                      <p>-</p>
                       @endif
                     </div>
                     </div>
@@ -37,11 +47,22 @@
                     </div>
                     <div class="mb-3">
                       <label for="NamaSantri" class="form-label">Mengulang</label>
+                      @if($hafalan->ulang)
                       <p>{{ $hafalan->ulang }}</p>
+                      @else
+                      <p>-</p>
+                      @endif
+                    </div>
+                    <div class="mb-3">
+                      <label for="NamaSantri" class="form-label">Diperiksa Oleh</label>
+                      @if($hafalan->ustad)
+                      <p>{{ $hafalan->ustad->name }}</p>
+                      @else
+                      <p>-</p>
+                      @endif
                     </div>
                     </div>
                     <h6>File Hafalan</h6>
-                    @if(auth()->user() && auth()->user()->role === 'santri')
                         @if(isset($hafalan) && $hafalan->file_hafalan)
                             <audio controls>
                                 <source src="{{ asset('file/hafalan/' . $hafalan->file_hafalan) }}" type="audio/mpeg">
@@ -50,7 +71,6 @@
                         @else
                             <p>Tidak ada file hafalan</p>
                         @endif
-                    @endif
                     </div>
                     <div class="mb-3">
                     <label for="NamaSantri" class="form-label">Catatan</label>
@@ -69,17 +89,33 @@
                     </div>
                     </div>
                     @if(auth()->user()->role === 'admin')
-                    <a href="{{ route('admin.pages.periksa-hafalan', $hafalan->id) }}" class="btn btn-warning">Periksa</a>
-                    <a href="{{ url('/admin/daftar-hafalan') }}" class="btn btn-primary">Kembali</a>
+                        @if ($hafalan->status === 'belum diperiksa' || $hafalan->status === 'sedang diperiksa')
+                            <a href="{{ route('admin.pages.periksa-hafalan', $hafalan->id) }}" class="btn btn-warning">Periksa</a>
+                            <!-- <a href="{{ url('/admin/daftar-hafalan') }}" class="btn btn-primary">Kembali</a> -->
+                        @endif
+                        <a href="{{ route('admin.edit-hafalan', $hafalan->id) }}" class="btn btn-success">Edit</a>
+                        <a href="{{ url('/admin/daftar-hafalan') }}" class="btn btn-primary">Kembali</a>
+                        <!-- <button class="btn btn-primary" onclick="goBack()">Kembali</button> -->
                     @elseif(auth()->user()->role === 'ustad')
-                    <a href="{{ route('ustad.pages.periksa-hafalan', $hafalan->id) }}" class="btn btn-warning">Periksa</a>
-                    <a href="{{ url('/ustad/daftar-hafalan') }}" class="btn btn-primary">Kembali</a>
+                        @if ($hafalan->status === 'belum diperiksa' || $hafalan->status === 'sedang diperiksa')
+                            <a href="{{ route('ustad.pages.periksa-hafalan', $hafalan->id) }}" class="btn btn-warning">Periksa</a>
+                        @endif
+                        <a href="{{ url('/ustad/daftar-hafalan') }}" class="btn btn-primary">Kembali</a>
+                        <!-- <button class="btn btn-primary" onclick="goBack()">Kembali</button> -->
                     @elseif(auth()->user()->role === 'santri')
-                    @if($hafalan->ulang === 'mengulang')
-                    <a href="{{ route('pages.edit-hafalan', $hafalan->id) }}" class="btn btn-warning">Revisi</a>
-                    @endif
-                    <a href="{{ url('/daftar-hafalan') }}" class="btn btn-primary">Kembali</a>
+                        @if($hafalan->ulang === 'mengulang')
+                            <a href="{{ route('pages.edit-hafalan', $hafalan->id) }}" class="btn btn-warning">Revisi</a>
+                        @endif
+                        <!-- <button class="btn btn-primary" onclick="goBack()">Kembali</button> -->
+                        <a href="{{ url('/daftar-hafalan') }}" class="btn btn-primary">Kembali</a>
                     @endif
             </div>
           </div>
 @endsection
+@push('script')
+<script>
+function goBack() {
+  window.history.back();
+}
+</script>
+@endpush

@@ -22,6 +22,23 @@
               <div class="card-body">
                 <h1 class="text-center">HafalanQu</h1>
                 <p class="text-center">Silahkan isi untuk masuk</p>
+                <div class="alert alert-info" role="alert">
+                  <b>Admin</b>
+                  <p>Email: admin@gmail.com<br>Password: admin123</p>
+                  <b>Ustad</b>
+                  <p>Email: ustad@gmail.com<br>Password: ustad123</p>
+                  <b>Ustad</b>
+                  <p>Email: santri@gmail.com<br>Password: santri123</p>
+                </div>
+                @if ($errors->any())
+                  <div class="alert alert-danger" role="alert">
+                    <ul>
+                      @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                      @endforeach
+                    </ul>
+                  </div>
+                @endif
                 <form method="POST" action="{{ route('login') }}">
                 @csrf
                   <div class="mb-3">
@@ -33,19 +50,8 @@
                     <input type="password" name="password" class="form-control" id="exampleInputPassword1" required>
                   </div>
                   <div class="d-flex align-items-center justify-content-between mb-4">
-                    <div class="form-check">
-                      <input class="form-check-input primary" type="checkbox" value="" id="flexCheckChecked" checked>
-                      <label class="form-check-label text-dark" for="flexCheckChecked">
-                        Remeber this Device
-                      </label>
-                    </div>
-                    <a class="text-primary fw-bold" href="{{ route('password.request') }}">Lupa Password ?</a>
                   </div>
                   <button type="submit" class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2">Masuk</button>
-                  <div class="d-flex align-items-center justify-content-center">
-                    <p class="fs-4 mb-0 fw-bold">Belum memiliki akun?</p>
-                    <a class="text-primary fw-bold ms-2" href="{{ route('register') }}">Register</a>
-                  </div>
                 </form>
               </div>
             </div>

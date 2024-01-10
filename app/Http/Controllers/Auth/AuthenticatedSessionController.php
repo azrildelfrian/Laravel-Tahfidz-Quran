@@ -37,7 +37,12 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('ustad.dashboard-ustad');
         }
 
+        elseif($request->user()->role === 'santri'){
+            return redirect()->route('dashboard');
+        }
+
         return redirect()->intended(RouteServiceProvider::HOME);
+
     }
 
     /**
