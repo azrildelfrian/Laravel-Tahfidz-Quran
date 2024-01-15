@@ -44,13 +44,6 @@
                         <a href="{{ route('admin.edit.kelas', $item->id) }}" class="dropdown-item bg-warning text-white">
                             <i class="ti ti-edit me-1"></i> Edit
                         </a>
-                        <form action="" method="post">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="dropdown-item bg-danger text-white">
-                                <i class="ti ti-trash me-1"></i> Delete
-                            </button>
-                        </form>
                     </div>
                 </div>
 

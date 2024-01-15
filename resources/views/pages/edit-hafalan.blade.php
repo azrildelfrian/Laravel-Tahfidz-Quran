@@ -21,11 +21,10 @@
                         <div class="form-group">
                             <label for="example-text-input" class="form-control-label">Nama Ustad Pemeriksa</label>
                             <select name="diperiksa_oleh" id="nama_ustad" class="form-control" >
-                                @if($hafalan->diperiksa_oleh && $hafalan->role === 'ustad')
-                                <option value="{{ $hafalan->diperiksa_oleh }}">{{ $hafalan->user->name }}</option>
-                                @else
-                                <option value="">=== Silahkan Pilih Ustad Pemeriksa ===</option>
+                                @if ($hafalan->diperiksa_oleh)
+                                    <option value="{{ $hafalan->diperiksa_oleh }}">{{ $hafalan->ustad->name }}</option>
                                 @endif
+                                <option value="">=== Silahkan Pilih Ustad Pemeriksa ===</option>
                                 @foreach ($users as $item)
                                     @if ($item->role === 'ustad')
                                         <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -141,7 +140,7 @@
                             </div>
                             <div class="col-md-12 mt-1 p-3">
                                 <h4>Tanggal Hafalan</h4>
-                                <input class="form-check-input-date" type="date" name="tanggal_hafalan" id="tanggal_hafalan">
+                                <input class="form-check-input-date" type="date" name="tanggal_hafalan" id="tanggal_hafalan" value="{{ $hafalan->tanggal_hafalan }}">
                             </div>
                             @endif
                             <div class="col-md-12 mt-3">

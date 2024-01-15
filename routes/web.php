@@ -68,6 +68,13 @@ Route::middleware(['auth', 'role:admin'])->group(function (){
     Route::get('admin/daftar-kelas/edit/{id}', [AdminC::class, 'updateKelas'])->name('pages.edit-kelas');
     Route::patch('admin/daftar-kelas/edit/{id}', [AdminC::class, 'editKelas'])->name('admin.edit.kelas');
     Route::delete('admin/daftar-kelas/delete/{id}', [AdminC::class, 'deleteKelas'])->name('admin.delete.kelas');
+    //santri
+    Route::get('admin/daftar-santri', [AdminC::class, 'daftarSantri'])->name('pages.daftar-santri');
+    Route::get('admin/daftar-santri/tambah', [AdminC::class, 'tambahSantri'])->name('pages.tambah-santri');
+    Route::post('/admin/daftar-santri/store', [AdminC::class, 'storeSantri'])->name('admin.santri.store');
+    Route::get('admin/daftar-santri/edit/{id}', [AdminC::class, 'updateSantri'])->name('admin.edit-santri');
+    Route::patch('admin/daftar-santri/edit/{id}', [AdminC::class, 'editSantri'])->name('admin.edit.santri');
+    Route::delete('admin/daftar-santri/delete/{id}', [AdminC::class, 'deleteSantri'])->name('admin.delete.santri');
 
 });
 

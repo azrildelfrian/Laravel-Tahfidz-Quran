@@ -13,6 +13,11 @@ class Santri extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'id_santri');
+    }
+
+    public function halaqoh()
+    {
+        return $this->belongsTo(Halaqoh::class, 'halaqoh_id');
     }
 }

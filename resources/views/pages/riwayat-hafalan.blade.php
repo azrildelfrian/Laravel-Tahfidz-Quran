@@ -30,7 +30,8 @@
                       @if (Auth::user()->role === 'admin' || Auth::user()->role === 'ustad')
                         <th>Nama</th>
                       @endif
-                        <th>Surat</th>
+                        <th>Dari</th>
+                        <th>Sampai</th>
                         <th>Tanggal</th>
                         <th>Status</th>
                         <th>Mengulang</th>
@@ -60,7 +61,8 @@
                         @endif
                         </td>
                       @endif
-                        <td>{{ $item->surat_1->nama_surat }} Ayat {{ $item->ayat_setoran_1 }} <br>Sampai<br> {{ $item->surat_2->nama_surat }} Ayat {{ $item->ayat_setoran_2 }}</td>
+                        <td>{{ $item->surat_1->nama_surat }} Ayat {{ $item->ayat_setoran_1 }}</td>
+                        <td> {{ $item->surat_2->nama_surat }} Ayat {{ $item->ayat_setoran_2 }}</td>
                         <td>{{ $item->tanggal_hafalan }}</td>
                         <td><span class="badge 
                         {{ $item->status === 'belum diperiksa' ? 'bg-warning' : 

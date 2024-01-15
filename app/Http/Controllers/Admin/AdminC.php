@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Hafalan;
@@ -163,7 +165,16 @@ class AdminC extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'file' => 'max:0', // 0 berarti tanpa batasan
+            'user_id' => 'required|exists:users,id',
+            'surat_id' => 'required|exists:surat,id',
+            'surat_id_2' => 'required|exists:surat,id',
+            'ayat_setoran_1' => 'required|integer|min:1',
+            'ayat_setoran_2' => 'required|integer|min:1',
+            'status' => 'in:belum diperiksa,sedang diperiksa,sudah diperiksa',
+            'kelancaran' => 'nullable',
+            'ulang' => 'in:mengulang,tidak',
+            'tanggal_hafalan' => 'required|date',
+            'file_hafalan' => 'nullable|max:0', // 0 berarti tanpa batasan
         ]);
         // Buat instansiasi model Hafalan
         $hafalan = new Hafalan();
@@ -199,6 +210,30 @@ class AdminC extends Controller
     {
         $hafalan = Hafalan::with(['surat_1', 'surat_2'])->findOrFail($id);
 
+        $request->validate([
+            'surat_id' => [
+                'required',
+                Rule::exists('surat', 'id')->where(function ($query) use ($hafalan) {
+                    return $query->where('id', $hafalan->surat_id);
+                }),
+            ],
+            'surat_id_2' => [
+                'required',
+                Rule::exists('surat', 'id')->where(function ($query) use ($hafalan) {
+                    return $query->where('id', $hafalan->surat_id_2);
+                }),
+            ],
+            'ayat_setoran_1' => 'required|integer|min:1',
+            'ayat_setoran_2' => 'required|integer|min:1',
+            'status' => 'in:belum diperiksa,sedang diperiksa,sudah diperiksa',
+            'kelancaran' => 'nullable',
+            'ulang' => 'in:mengulang,tidak',
+            'diperiksa_oleh' => 'nullable|string|max:255',
+            'catatan_teks' => 'nullable|string',
+            'tanggal_hafalan' => 'required|date',
+            'file_hafalan' => 'nullable|max:0',
+        ]);
+    
         // Hapus file hafalan lama jika ada
         if ($hafalan->file_hafalan) {
             Storage::delete('file/hafalan/' . $hafalan->file_hafalan);
@@ -236,6 +271,14 @@ class AdminC extends Controller
     public function reviewed(Request $request, $id)
     {
         $hafalan = Hafalan::findOrFail($id);
+
+        $request->validate([
+            'kelancaran' => 'required|',
+            'ulang' => 'required|in:mengulang,tidak',
+            'catatan_teks' => 'nullable|string',
+            'diperiksa_oleh' => 'nullable|string|max:255',
+            'catatan_suara' => 'nullable|max:0',
+        ]);
 
         // Perbarui kolom-kolom yang diperbolehkan
         $hafalan->update([
@@ -312,6 +355,16 @@ class AdminC extends Controller
     public function editAkun(Request $request, $id) {
         $users = User::findOrFail($id);
 
+        $request->validate([
+            'name' => 'required|string',
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users')->ignore($users->id),
+            ],
+            'role' => 'required|in:admin,ustad,santri',
+        ]);
+
         $users->update([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
@@ -322,27 +375,27 @@ class AdminC extends Controller
     }
 
     public function destroyAkun($id)
-    {
-        $user = User::findOrFail($id);
+{
+    $user = User::findOrFail($id);
+    $role = $user->role;
 
-        $role = $user->role;
+    if ($role === 'santri') {
+        // Pastikan mencari santri berdasarkan id_santri, bukan id
+        $santri = Santri::where('id_santri', $user->id)->first();
 
-        if ($role === 'santri') {
-            $santri = Santri::where('id_santri', $user->id)->first();
-            if ($santri) {
-                $santri->delete();
-            }
-        } elseif ($role === 'ustad') {
-            $ustad = Ustad::where('id_ustad', $user->id)->first();
-            if ($ustad) {
-                $ustad->delete();
-            }
+        if ($santri) {
+            $santri->delete();
         }
-
-        $user->delete();
-
-        return redirect('admin/daftar-akun')->with('success', 'Data akun berhasil dihapus.');
     }
+
+    $user->delete();
+
+    // Tambahkan pernyataan dd di sini untuk melihat hasilnya
+    // dd('Data akun berhasil dihapus.', $user);
+
+    // Redirect setelah melihat hasil jika perlu
+    return redirect('admin/daftar-akun')->with('success', 'Data akun berhasil dihapus.');
+}
 
     public function daftarHalaqoh(Request $request)
     {
@@ -367,6 +420,8 @@ class AdminC extends Controller
     public function storeHalaqoh(Request $request)
     {
         $request->validate([
+            'nama_halaqoh' => 'required|string|max:50',
+            'ustad_pengampu' => 'required|exists:users,id,role,ustad',
         ]);
         // Buat instansiasi model Hafalan
         $halaqoh = new Halaqoh();
@@ -464,6 +519,99 @@ class AdminC extends Controller
         ]);
 
         return redirect('admin/daftar-kelas')->with('success', 'Data kelas berhasil diupdate.');
+    }
+
+    public function daftarSantri(Request $request)
+    {
+        // Use the query builder to get a paginated result
+        $santri = Santri::paginate($request->input('per_page', 10));
+        $title = 'Hapus Data Santri?';
+        $text = "Apakah anda yakin ingin menghapus data ini?";
+        confirmDelete($title, $text);
+
+        return view('pages.daftar-santri', compact('santri'));
+    }
+
+    public function tambahSantri()
+    {
+        $halaqoh = Halaqoh::with(['ustad'])->get();
+        $kelas = Kelas::all();
+
+        return view('pages.tambah-santri',compact('halaqoh','kelas'));
+    }
+
+    public function storeSantri(Request $request)
+    {
+        $request->validate([
+            'role' => 'required|in:santri',
+            'email' => 'required|email|unique:users,email',
+            'name' => 'required|string',
+            'password' => 'required|string|min:6',
+            'halaqoh_id' => 'required', // Tetap memerlukan halaqoh_id, karena ini untuk santri
+            'kelas_id' => 'required', // Tetap memerlukan kelas_id, karena ini untuk santri
+            'nomor_id' => 'required', // Tetap memerlukan nomor_id, karena ini untuk santri
+        ]);
+
+        $user = new User();
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => $request->role,
+            'password' => Hash::make($request->password),
+        ]);
+        $user->save();
+        
+        $santri = new User();
+        $santri = Santri::create([
+            'id_santri' => $user->id,
+            'halaqoh_id' => $request->halaqoh_id,
+            'kelas_id' => $request->kelas_id,
+            'nomor_id' => $request->nomor_id,
+        ]);
+        $santri->save();
+
+        return redirect('admin/daftar-santri')->with('success', 'Data santri berhasil ditambah.');
+    }
+
+
+    public function updateSantri($id)
+    {
+        $santri = Santri::findOrFail($id);
+        $halaqoh = Halaqoh::all();
+        $users = User::where('role', 'santri');
+
+        return view('pages.edit-santri',compact('santri','users', 'halaqoh'));
+    }
+
+    public function editSantri(Request $request, $id)
+    {
+        $santri = Santri::findOrFail($id);
+        $request->validate([
+            'halaqoh_id' => 'required',
+            'name' => 'required',
+            'email' => 'required',
+        ]);
+
+        $santri->update([
+            'halaqoh_id' => $request->halaqoh_id,
+        ]);
+
+        $santri->user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+        ]);
+
+        return redirect('admin/daftar-santri')->with('success', 'Data santri berhasil diupdate.');
+    }
+
+    public function deleteSantri($id)
+    {
+        $santri = Santri::findOrFail($id);
+
+        // Hapus halaqoh
+        $santri->delete();
+
+        return redirect('admin/daftar-halaqoh')->with('success', 'Data santri berhasil dihapus.');
     }
 
 }

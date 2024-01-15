@@ -118,6 +118,16 @@
           </li>
           <li class="sidebar-item">
               <a class="sidebar-link" 
+              href="{{ url('/admin/daftar-santri') }}"
+              aria-expanded="false">
+              <span>
+                <i class="ti ti-users"></i>
+              </span>
+              <span class="hide-menu">Daftar Santri</span>
+            </a>
+          </li>
+          <li class="sidebar-item">
+              <a class="sidebar-link" 
               href="{{ url('/admin/daftar-halaqoh') }}"
               aria-expanded="false">
               <span>

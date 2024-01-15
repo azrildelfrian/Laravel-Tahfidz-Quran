@@ -31,9 +31,13 @@ class UstadC extends Controller
             ->whereIn('user_id', $santriUserIds)
             ->count();
 
+        $hafalanNeedChecked = Hafalan::whereIn('user_id', $santriUserIds)
+            ->where('status', 'belum diperiksa') // Hanya hitung yang belum diperiksa
+            ->count();
+
         $hafalanCount = Hafalan::whereIn('user_id', $santriUserIds)->count();
 
-        return view('ustad.dashboard-ustad', compact('hafalanCount', 'hafalanAddedToday', 'hafalanDeletedToday'));
+        return view('ustad.dashboard-ustad', compact('hafalanCount', 'hafalanAddedToday', 'hafalanDeletedToday', 'hafalanNeedChecked'));
     }
 
 
@@ -58,7 +62,7 @@ class UstadC extends Controller
 
         $hafalan = Hafalan::with(['user', 'surat_1', 'surat_2'])
             ->whereIn('user_id', $santriUserId)
-            ->orderBy('status', 'desc')
+            ->where('status', 'belum diperiksa')
             ->paginate($request->input('per_page', 10));
 
         $surat = Surat::all();
@@ -74,7 +78,14 @@ class UstadC extends Controller
     {
         $hafalan = Hafalan::with(['surat_1', 'surat_2'])->get();
         $surat = Surat::all();
-        $users = User::all();
+        $ustadId = Auth::id();
+        $santriUserIds = Santri::where('halaqoh_id', function($query) use ($ustadId) {
+            $query->select('id')->from('halaqoh')->where('ustad_pengampu', $ustadId);
+        })->pluck('id_santri');
+
+        $users = User::whereIn('id', $santriUserIds)
+            ->where('role', 'santri')
+            ->get();
 
         return view('pages.tambah-hafalan',compact('users','hafalan','surat'));
     }

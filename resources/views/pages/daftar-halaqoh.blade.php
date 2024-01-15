@@ -49,7 +49,7 @@
                         <form action="{{ route('admin.delete.halaqoh', $item->id) }}" method="post" onsubmit="return confirm('Apakah Anda yakin ingin menghapus halaqoh ini?')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="dropdown-item bg-danger text-white">
+                            <button type="submit" id="delete_confirm" data-confirm-delete="true" class="dropdown-item bg-danger text-white">
                                 <i class="ti ti-trash me-1"></i> Delete
                             </button>
                         </form>

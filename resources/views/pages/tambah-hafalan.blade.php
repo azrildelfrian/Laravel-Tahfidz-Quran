@@ -20,6 +20,7 @@
                             <div class="col-md-12 mb-3">
                             <div class="form-group">
                             <label for="example-text-input" class="form-control-label">Nama Santri</label>
+                            @if (Auth::user()->role === 'admin')
                             <select name="user_id" id="nama_santri" class="form-control" required>
                                 <option value="">=== Pilih Santri ===</option>
                                 @foreach ($users as $item)
@@ -28,6 +29,16 @@
                                     @endif
                                 @endforeach
                             </select>
+                            @elseif (Auth::user()->role === 'ustad')
+                            <select name="user_id" id="nama_santri" class="form-control" required>
+                                <option value="">=== Pilih Santri ===</option>
+                                @foreach ($users as $item)
+                                    @if ($item->role === 'santri')
+                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                            @endif
                         </div>
                         <!--<input name="user_id" class="form-control" type="hidden" value="{{ Auth::user()->id }}" required>-->
                             </div>
