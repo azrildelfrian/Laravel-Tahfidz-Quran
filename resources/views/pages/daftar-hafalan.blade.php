@@ -84,7 +84,7 @@
                                 <form action="{{ route('admin.daftar-hafalan.destroy', $item->id) }}" method="post">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="dropdown-item bg-danger text-white"><i class="ti ti-trash me-1"></i> Delete</button>
+                                    <button type="submit" id="delete_confirm" data-confirm-delete="true" class="dropdown-item bg-danger text-white show_confirm"><i class="ti ti-trash me-1"></i> Delete</button>
                                 </form>
                             </div>
                           </div>
@@ -117,5 +117,6 @@
     </div>
 </div>
 
-
 @endsection
+@push('script')
+@endpush

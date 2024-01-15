@@ -101,5 +101,24 @@
         var jumlahAyat = selectedSurat.getAttribute('jumlah_ayat');
         document.getElementById('ayat_setoran_2').setAttribute('max', jumlahAyat);
     });
+
+    $(document).ready(function() {
+    // Mendapatkan elemen select
+    var surat = $("#surat_2");
+    var ayat = $("#ayat_setoran_2");
+
+    // Menambahkan event change pada select surat
+    surat.on("change", function() {
+        // Mengambil nilai surat yang dipilih
+        var surat_id = surat.val();
+        var jumlah_ayat = surat.find(':selected').data('ayat'); // Perbaikan: Ambil jumlah ayat dari atribut data-ayat
+
+        // Mengubah nilai ayat sesuai dengan jumlah ayat surat
+        ayat.html("<option value=''>=== Silahkan Pilih Ayat ===</option>");
+        for (var i = 1; i <= jumlah_ayat; i++) {
+            ayat.append("<option value='" + i + "'>" + i + "</option>");
+        }
+    });
+});
 </script>
 @endpush

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Santri;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Carbon;
+use Illuminate\Http\Request;
 use App\Models\Hafalan;
 use App\Models\Surat;
 use App\Models\User;
@@ -14,13 +15,23 @@ class SantriC extends Controller
 {
     public function dashboard()
     {
-        if(Auth::user()->role === 'admin'){
+        $user = Auth::user();
+        $userlogin = Auth::id();
+
+        if ($user->role === 'admin') {
             return redirect()->route('admin.dashboard');
-        } elseif(Auth::user()->role === 'ustad'){
+        } elseif ($user->role === 'ustad') {
             return redirect()->route('ustad.dashboard-ustad');
-        }   
-        return view('dashboard');
+        }
+
+        $today = Carbon::today();
+        $hafalanAddedToday = Hafalan::whereDate('created_at', $today)->where('user_id', $userlogin)->count();
+        $hafalanDeletedToday = Hafalan::whereDate('deleted_at', $today)->where('user_id', $userlogin)->count();
+        $hafalanCount = Hafalan::where('user_id', $userlogin)->count();
+
+        return view('dashboard', compact('hafalanCount', 'hafalanAddedToday', 'hafalanDeletedToday', 'user'));
     }
+
 
     public function detail($id)
     {
@@ -44,10 +55,14 @@ class SantriC extends Controller
         if ($hafalan->user_id !== auth()->user()->id) {
             abort(404, 'Not Found');
         }
+
+        if ($hafalan->ulang != 'mengulang') {
+            abort(403, 'Unauthorized');
+        }
     
         // Check if the status is not 'sudah diperiksa'
         if ($hafalan->ulang === 'tidak') {
-            abort(404, 'Not Found');
+            abort(403, 'Unauthorized');
         }
 
         $surat = Surat::all();
@@ -58,17 +73,16 @@ class SantriC extends Controller
 
     public function daftarHafalan(Request $request)
     {
-        $isAdmin = Auth::user()->role === 'admin';
-
-        if ($isAdmin) {
-            // If admin, fetch all hafalan data
-            $hafalanQuery = Hafalan::with(['surat_1', 'surat_2']);
-        } else {
-            // If not admin, fetch hafalan data related to the current user who is revising
+            
+            $user = Auth::user();
+            if ($user->role !== 'santri') {
+                abort(404, 'Not Found');
+            }
+            
             $userId = Auth::id();
             $hafalanQuery = Hafalan::with(['surat_1', 'surat_2'])
-                ->where('user_id', $userId)
-                ->where('ulang', 'mengulang'); // Add this condition to filter by 'mengulang'
+                ->where('user_id', $userId)->orderBy('created_at', 'desc');
+                // ->where('ulang', 'mengulang'); // Add this condition to filter by 'mengulang'
 
             if ($request->has('search')) {
                 $search = $request->input('search');
@@ -84,7 +98,7 @@ class SantriC extends Controller
                         ->orWhere('ulang', 'LIKE', '%' . $search . '%');
                 });
             }
-        }
+
 
         $hafalan = $hafalanQuery->paginate($request->input('per_page', 10));
         $surat = Surat::all();
@@ -94,6 +108,10 @@ class SantriC extends Controller
 
     public function tambahHafalan()
     {
+        $user = Auth::user();
+            if ($user->role !== 'santri') {
+                abort(404, 'Not Found');
+            }
         $hafalan = Hafalan::with(['surat_1', 'surat_2'])->get();
         $surat = Surat::all();
         $users = User::all();
@@ -103,9 +121,13 @@ class SantriC extends Controller
 
     public function riwayatHafalan(Request $request)
     {
+        $user = Auth::user();
+            if ($user->role !== 'santri') {
+                abort(404, 'Not Found');
+            }
         $isAdmin = Auth::user()->role === 'admin';
 
-        $hafalanQuery = Hafalan::with(['user', 'surat_1', 'surat_2']);
+        $hafalanQuery = Hafalan::with(['user', 'surat_1', 'surat_2'])->orderBy('created_at', 'desc');;
 
         // Tambahkan kondisi pencarian jika parameter 'search' ada di URL
         if ($request->has('search')) {
@@ -126,14 +148,8 @@ class SantriC extends Controller
             });
         }
 
-        if ($isAdmin) {
-            // Jika admin, ambil semua data hafalan
-            $hafalan = $hafalanQuery->paginate($request->input('per_page', 10));
-        } else {
-            // Jika bukan admin, ambil data hafalan yang terkait dengan pengguna saat ini
-            $userId = Auth::id();
-            $hafalan = $hafalanQuery->where('user_id', $userId)->paginate($request->input('per_page', 10));
-        }
+        $userId = Auth::id();
+        $hafalan = $hafalanQuery->where('user_id', $userId)->paginate($request->input('per_page', 10));
 
         $surat = Surat::all();
         $users = User::all();
@@ -144,6 +160,10 @@ class SantriC extends Controller
 
     public function store(Request $request)
     {
+        $user = Auth::user();
+            if ($user->role !== 'santri') {
+                abort(404, 'Not Found');
+            }
         $request->validate([
             'file' => 'max:0', // 0 berarti tanpa batasan
         ]);
@@ -179,6 +199,10 @@ class SantriC extends Controller
 
     public function edit(Request $request, $id)
     {
+        $user = Auth::user();
+            if ($user->role !== 'santri') {
+                abort(404, 'Not Found');
+            }
         $hafalan = Hafalan::with(['surat_1', 'surat_2'])->findOrFail($id);
 
         // Hapus file hafalan lama jika ada

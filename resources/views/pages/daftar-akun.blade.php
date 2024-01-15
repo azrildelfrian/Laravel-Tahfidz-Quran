@@ -24,7 +24,7 @@
             </form>
         </div>
     </div>
-    <table class="table">
+    <table class="table" border="1">
         <thead>
             <tr>
                 @if (Auth::user()->role === 'admin' || Auth::user()->role === 'ustad')

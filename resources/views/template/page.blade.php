@@ -13,6 +13,7 @@
 </head>
 
 <body>
+@include('sweetalert::alert')
   <!--  Body Wrapper -->
   <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
     data-sidebar-position="fixed" data-header-position="fixed">
@@ -113,6 +114,26 @@
                 <i class="ti ti-users"></i>
               </span>
               <span class="hide-menu">Daftar Akun</span>
+            </a>
+          </li>
+          <li class="sidebar-item">
+              <a class="sidebar-link" 
+              href="{{ url('/admin/daftar-halaqoh') }}"
+              aria-expanded="false">
+              <span>
+                <i class="ti ti-triangle-square-circle"></i>
+              </span>
+              <span class="hide-menu">Daftar Halaqoh</span>
+            </a>
+          </li>
+          <li class="sidebar-item">
+              <a class="sidebar-link" 
+              href="{{ url('/admin/daftar-kelas') }}"
+              aria-expanded="false">
+              <span>
+                <i class="ti ti-columns"></i>
+              </span>
+              <span class="hide-menu">Daftar Kelas</span>
             </a>
           </li>
           @endif

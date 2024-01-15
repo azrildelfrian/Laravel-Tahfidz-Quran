@@ -43,7 +43,11 @@
                     <div class="col-md-4">
                     <div class="mb-3">
                       <label for="NamaSantri" class="form-label">Tanggal Hafalan</label>
+                      @if($hafalan->tanggal_hafalan)
                       <p>{{ $hafalan->tanggal_hafalan }}</p>
+                      @else
+                      <p>-</p>
+                      @endif
                     </div>
                     <div class="mb-3">
                       <label for="NamaSantri" class="form-label">Mengulang</label>

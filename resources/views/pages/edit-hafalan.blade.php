@@ -21,7 +21,11 @@
                         <div class="form-group">
                             <label for="example-text-input" class="form-control-label">Nama Ustad Pemeriksa</label>
                             <select name="diperiksa_oleh" id="nama_ustad" class="form-control" >
-                                <option value="">=== Pilih Ustad ===</option>
+                                @if($hafalan->diperiksa_oleh && $hafalan->role === 'ustad')
+                                <option value="{{ $hafalan->diperiksa_oleh }}">{{ $hafalan->user->name }}</option>
+                                @else
+                                <option value="">=== Silahkan Pilih Ustad Pemeriksa ===</option>
+                                @endif
                                 @foreach ($users as $item)
                                     @if ($item->role === 'ustad')
                                         <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -50,7 +54,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="example-text-input" class="form-control-label">Ayat</label>
-                                    <input name="ayat_setoran_1" class="form-control" type="number" value="{{ $hafalan->ayat_setoran_1 }}" placeholder="Masukkan ayat" min="1" required>
+                                    <input name="ayat_setoran_1" id="datepicker" class="form-control" type="number" value="{{ $hafalan->ayat_setoran_1 }}" placeholder="Masukkan ayat" min="1" required>
                                 </div>
                             </div>
                         </div>
@@ -135,6 +139,10 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-12 mt-1 p-3">
+                                <h4>Tanggal Hafalan</h4>
+                                <input class="form-check-input-date" type="date" name="tanggal_hafalan" id="tanggal_hafalan">
+                            </div>
                             @endif
                             <div class="col-md-12 mt-3">
                             <label for="filehafalan" class="form-label">File Hafalan Sebelumnya</label>
@@ -173,4 +181,23 @@
 <script>
     $('#surat_1, #surat_2, #nama_ustad').select2();
 </script>
+@endpush
+@push('style')
+<style>
+    .form-check-input-date {
+        /* Gaya umum untuk input dalam bentuk kotak centang */
+        width: 100%;
+        height: 50px;
+        margin: 0;
+    }
+
+    #tanggal_hafalan {
+        /* Gaya khusus untuk input dengan ID "tanggal_hafalan" */
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+        /* Atur gaya kustom sesuai kebutuhan */
+    }
+</style>
 @endpush

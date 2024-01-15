@@ -2,20 +2,40 @@
 
 namespace App\Http\Controllers\Ustad;
 
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Hafalan;
+use App\Models\Halaqoh;
+use App\Models\Santri;
 use App\Models\Surat;
 use App\Models\User;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
 
 class UstadC extends Controller
 {
     public function index()
     {
-        return view('ustad.dashboard-ustad');
+        $ustadId = Auth::id();
+        $halaqohId = Halaqoh::where('ustad_pengampu', $ustadId)->value('id');
+        $santriUserIds = Santri::where('halaqoh_id', $halaqohId)->pluck('id_santri');
+
+        $today = Carbon::today();
+        
+        $hafalanAddedToday = Hafalan::whereDate('created_at', $today)
+            ->whereIn('user_id', $santriUserIds)
+            ->count();
+
+        $hafalanDeletedToday = Hafalan::whereDate('deleted_at', $today)
+            ->whereIn('user_id', $santriUserIds)
+            ->count();
+
+        $hafalanCount = Hafalan::whereIn('user_id', $santriUserIds)->count();
+
+        return view('ustad.dashboard-ustad', compact('hafalanCount', 'hafalanAddedToday', 'hafalanDeletedToday'));
     }
+
 
     // public function daftarHafalan()
     // {
@@ -31,38 +51,22 @@ class UstadC extends Controller
     // }
 
     public function daftarHafalan(Request $request)
-{
-    $hafalanQuery = Hafalan::with(['user' => function ($query) {
-        $query->withTrashed(); // Include soft-deleted users
-    }, 'surat_1', 'surat_2'])
-        ->orderBy('status', 'desc');
+    {
+        $ustadId = Auth::id();
+        $halaqohId = Halaqoh::where('ustad_pengampu', $ustadId)->value('id');
+        $santriUserId = Santri::where('halaqoh_id', $halaqohId)->pluck('id_santri');
 
-    // Tambahkan kondisi pencarian jika parameter 'search' ada di URL
-    if ($request->has('search')) {
-        $search = $request->input('search');
-        $hafalanQuery->where(function ($query) use ($search) {
-            $query->whereHas('user', function ($subquery) use ($search) {
-                    $subquery->where('name', 'LIKE', '%' . $search . '%');
-                })
-                ->orWhereHas('surat_1', function ($subquery) use ($search) {
-                    $subquery->where('nama_surat', 'LIKE', '%' . $search . '%');
-                })
-                ->orWhereHas('surat_2', function ($subquery) use ($search) {
-                    $subquery->where('nama_surat', 'LIKE', '%' . $search . '%');
-                })
-                ->orWhere('tanggal_hafalan', 'LIKE', '%' . $search . '%')
-                ->orWhere('status', 'LIKE', '%' . $search . '%')
-                ->orWhere('ulang', 'LIKE', '%' . $search . '%');
-        });
+        $hafalan = Hafalan::with(['user', 'surat_1', 'surat_2'])
+            ->whereIn('user_id', $santriUserId)
+            ->orderBy('status', 'desc')
+            ->paginate($request->input('per_page', 10));
+
+        $surat = Surat::all();
+        $users = User::all();
+        
+
+        return view('pages.daftar-hafalan', compact('users', 'hafalan', 'surat'));
     }
-
-    $hafalan = $hafalanQuery->paginate($request->input('per_page', 10));
-
-    $surat = Surat::all();
-    $users = User::all();
-
-    return view('pages.daftar-hafalan', compact('users', 'hafalan', 'surat'));
-}
 
 
 
@@ -100,10 +104,15 @@ class UstadC extends Controller
 
     public function riwayatHafalan(Request $request)
     {
+        $ustadId = Auth::id();
+        $halaqohId = Halaqoh::where('ustad_pengampu', $ustadId)->value('id');
+        $santriUserId = Santri::where('halaqoh_id', $halaqohId)->pluck('id_santri');
+
         $hafalanQuery = Hafalan::with(['user' => function ($query) {
-            $query->withTrashed(); // Include soft-deleted users
-        }, 'surat_1', 'surat_2'])
-            ->orderBy('created_at', 'desc'); // Order by created_at in descending order
+                $query->withTrashed(); // Include soft-deleted users
+            }, 'surat_1', 'surat_2'])
+            ->whereIn('user_id', $santriUserId)
+            ->orderBy('status', 'desc');
 
         // Tambahkan kondisi pencarian jika parameter 'search' ada di URL
         if ($request->has('search')) {

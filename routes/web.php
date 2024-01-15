@@ -36,22 +36,39 @@ Route::middleware(['auth', 'role:admin'])->group(function (){
     Route::get('/admin', function () {return redirect('/admin/dashboard');});
     Route::get('/register', function () {return redirect('admin/daftar-akun/tambah');});
     Route::get('admin/dashboard',[AdminC::class, 'index'])->name('admin.dashboard');
+    //hafalan
     Route::get('admin/daftar-hafalan', [AdminC::class, 'daftarHafalan'])->name('pages.daftar-hafalan');
     Route::get('admin/riwayat-hafalan', [AdminC::class, 'riwayatHafalan'])->name('pages.riwayat-hafalan');
     Route::get('admin/tambah-hafalan', [AdminC::class, 'tambahHafalan'])->name('pages.tambah-hafalan');
     Route::get('admin/detail-hafalan/{id}', [AdminC::class, 'detail'])->name('admin.pages.detail-hafalan');
-    Route::post('admin/hafalan/store', [AdminC::class, 'store'])->name('admin.hafalan.store');
     Route::get('admin/periksa-hafalan/{id}', [AdminC::class, 'periksa'])->name('admin.pages.periksa-hafalan');
-    Route::patch('admin/hafalan/reviewed/{id}', [AdminC::class, 'reviewed'])->name('admin.hafalan.reviewed');
-    Route::get('admin/daftar-akun', [AdminC::class, 'daftarAkun'])->name('pages.daftar-akun');
-    Route::get('admin/daftar-akun/tambah', [RegisteredUserController::class, 'create'])->name('auth.register');
-    Route::post('/admin/daftar-akun/store', [RegisteredUserController::class, 'store'])->name('admin.auth.store');
     Route::get('admin/edit-hafalan/{id}', [AdminC::class, 'ubah'])->name('admin.edit-hafalan');
+    Route::post('admin/hafalan/store', [AdminC::class, 'store'])->name('admin.hafalan.store');
+    Route::patch('admin/hafalan/reviewed/{id}', [AdminC::class, 'reviewed'])->name('admin.hafalan.reviewed');
     Route::patch('admin/edit-hafalan/{id}', [AdminC::class, 'edit'])->name('admin.hafalan.edit');
     Route::delete('/admin/daftar-hafalan/{id}', [AdminC::class, 'destroy'])->name('admin.daftar-hafalan.destroy');
+    //akun
+    Route::get('admin/daftar-akun', [AdminC::class, 'daftarAkun'])->name('pages.daftar-akun');
+    Route::get('admin/daftar-akun/tambah', [RegisteredUserController::class, 'create'])->name('auth.register');
     Route::get('admin/edit-akun/{id}', [AdminC::class, 'updateAkun'])->name('admin.edit-akun');
+    Route::post('/admin/daftar-akun/store', [RegisteredUserController::class, 'store'])->name('admin.auth.store');
     Route::patch('admin/edit-akun/{id}', [AdminC::class, 'editAkun'])->name('admin.edit.akun');
     Route::delete('/admin/daftar-akun/{id}', [AdminC::class, 'destroyAkun'])->name('admin.akun.destroy');
+    //halaqoh
+    Route::get('admin/daftar-halaqoh', [AdminC::class, 'daftarHalaqoh'])->name('pages.daftar-halaqoh');
+    Route::get('admin/daftar-halaqoh/tambah', [AdminC::class, 'tambahHalaqoh'])->name('pages.tambah-halaqoh');
+    Route::post('/admin/daftar-halaqoh/store', [AdminC::class, 'storeHalaqoh'])->name('admin.halaqoh.store');
+    Route::get('admin/daftar-halaqoh/edit/{id}', [AdminC::class, 'updateHalaqoh'])->name('pages.edit-halaqoh');
+    Route::patch('admin/daftar-halaqoh/edit/{id}', [AdminC::class, 'editHalaqoh'])->name('admin.edit.halaqoh');
+    Route::delete('admin/daftar-halaqoh/delete/{id}', [AdminC::class, 'deleteHalaqoh'])->name('admin.delete.halaqoh');
+    //kelas
+    Route::get('admin/daftar-kelas', [AdminC::class, 'daftarKelas'])->name('pages.daftar-kelas');
+    Route::get('admin/daftar-kelas/tambah', [AdminC::class, 'tambahKelas'])->name('pages.tambah-kelas');
+    Route::post('/admin/daftar-kelas/store', [AdminC::class, 'storeKelas'])->name('admin.kelas.store');
+    Route::get('admin/daftar-kelas/edit/{id}', [AdminC::class, 'updateKelas'])->name('pages.edit-kelas');
+    Route::patch('admin/daftar-kelas/edit/{id}', [AdminC::class, 'editKelas'])->name('admin.edit.kelas');
+    Route::delete('admin/daftar-kelas/delete/{id}', [AdminC::class, 'deleteKelas'])->name('admin.delete.kelas');
+
 });
 
 Route::middleware(['auth', 'role:ustad'])->group(function (){

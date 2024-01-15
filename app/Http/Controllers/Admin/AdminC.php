@@ -2,10 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
+use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Hafalan;
+use App\Models\Halaqoh;
+use App\Models\Santri;
+use App\Models\Kelas;
+use App\Models\Ustad;
 use App\Models\Surat;
 use App\Models\User;
 
@@ -13,7 +19,15 @@ class AdminC extends Controller
 {
     public function index()
     {
-        return view('admin.dashboard');
+        $today = Carbon::today(); // Mengambil tanggal hari ini
+        $userAddedToday = User::whereDate('created_at', $today)->count();
+        $userDeletedToday = User::whereDate('deleted_at', $today)->count();
+        $hafalanAddedToday = Hafalan::whereDate('created_at', $today)->count();
+        $hafalanDeletedToday = Hafalan::whereDate('deleted_at', $today)->count();
+
+        $userCount = User::count();
+        $hafalanCount = Hafalan::count();
+        return view('admin.dashboard', compact('userCount', 'hafalanCount', 'userAddedToday', 'userDeletedToday', 'hafalanAddedToday', 'hafalanDeletedToday'));
     }
     
     public function userTrashed()
@@ -51,6 +65,10 @@ class AdminC extends Controller
 
         $surat = Surat::all();
         $users = User::all(); // Consider using withTrashed here if needed
+
+        $title = 'Hapus Data Hafalan!';
+        $text = "Apakah anda yakin ingin menghapus data ini?";
+        confirmDelete($title, $text);
 
         return view('pages.daftar-hafalan', compact('users', 'hafalan', 'surat'));
     }
@@ -158,7 +176,7 @@ class AdminC extends Controller
         $hafalan->status = $request->input('status', 'belum diperiksa');
         $hafalan->kelancaran = $request->input('kelancaran', null);
         $hafalan->ulang = $request->input('ulang', 'belum diperiksa');
-        $hafalan->tanggal_hafalan = now();
+        $hafalan->tanggal_hafalan = $request->input('tanggal_hafalan');;
         //$hafalan->tanggal_hafalan = $request->input('tanggal_hafalan');
 
         // Cek apakah ada file hafalan yang diupload
@@ -197,6 +215,7 @@ class AdminC extends Controller
             'ulang' => $request->input('ulang'),
             'diperiksa_oleh' => $request->input('diperiksa_oleh'),
             'catatan_teks' => $request->input('catatan_teks'),
+            'tanggal_hafalan' => $request->input('tanggal_hafalan'),
             'updated_at' => now(),
         ]);
 
@@ -241,6 +260,26 @@ class AdminC extends Controller
         return redirect('admin/daftar-hafalan')->with('success', 'Data hafalan berhasil diperbarui.');
     }
 
+    public function destroy($id)
+    {
+        // Temukan data hafalan berdasarkan ID
+        $hafalan = Hafalan::find($id);
+
+        // Hapus file_hafalan dari penyimpanan jika ada
+        if (!empty($hafalan->file_hafalan)) {
+            $file_path = public_path('file/hafalan/') . $hafalan->file_hafalan;
+            if (file_exists($file_path)) {
+                unlink($file_path);
+            }
+        }
+
+        // Hapus data hafalan dari database
+        $hafalan->delete();
+
+        // Redirect atau tampilkan pesan sukses jika perlu
+        return redirect('admin/daftar-hafalan')->with('success', 'Data hafalan berhasil dihapus.');
+    }
+
     public function daftarAkun(Request $request)
     {
         $akunQuery = User::query();
@@ -256,6 +295,10 @@ class AdminC extends Controller
         }
 
         $akun = $akunQuery->paginate($request->input('per_page', 10));
+
+        $title = 'Hapus Data Akun?';
+        $text = "Apakah anda yakin ingin menghapus data ini?";
+        confirmDelete($title, $text);
 
         return view('pages.daftar-akun', compact('akun'));
     }
@@ -281,30 +324,146 @@ class AdminC extends Controller
     public function destroyAkun($id)
     {
         $user = User::findOrFail($id);
+
+        $role = $user->role;
+
+        if ($role === 'santri') {
+            $santri = Santri::where('id_santri', $user->id)->first();
+            if ($santri) {
+                $santri->delete();
+            }
+        } elseif ($role === 'ustad') {
+            $ustad = Ustad::where('id_ustad', $user->id)->first();
+            if ($ustad) {
+                $ustad->delete();
+            }
+        }
+
         $user->delete();
 
         return redirect('admin/daftar-akun')->with('success', 'Data akun berhasil dihapus.');
     }
 
-
-    public function destroy($id)
+    public function daftarHalaqoh(Request $request)
     {
-        // Temukan data hafalan berdasarkan ID
-        $hafalan = Hafalan::find($id);
+        // Use the query builder to get a paginated result
+        $halaqoh = Halaqoh::paginate($request->input('per_page', 10));
+        
+        $title = 'Hapus Data Halaqoh?';
+        $text = "Apakah anda yakin ingin menghapus data ini?";
+        confirmDelete($title, $text);
 
-        // Hapus file_hafalan dari penyimpanan jika ada
-        if (!empty($hafalan->file_hafalan)) {
-            $file_path = public_path('file/hafalan/') . $hafalan->file_hafalan;
-            if (file_exists($file_path)) {
-                unlink($file_path);
-            }
-        }
+        return view('pages.daftar-halaqoh', compact('halaqoh'));
+    }
 
-        // Hapus data hafalan dari database
-        $hafalan->delete();
+    public function tambahHalaqoh()
+    {
+        $halaqoh = Halaqoh::with(['ustad'])->get();
+        $ustads = User::where('role', 'ustad')->get();
+
+        return view('pages.tambah-halaqoh',compact('halaqoh','ustads'));
+    }
+
+    public function storeHalaqoh(Request $request)
+    {
+        $request->validate([
+        ]);
+        // Buat instansiasi model Hafalan
+        $halaqoh = new Halaqoh();
+        $halaqoh->nama_halaqoh = $request->input('nama_halaqoh');
+        $halaqoh->ustad_pengampu = $request->input('ustad_pengampu');
+        
+        $halaqoh->save();
 
         // Redirect atau tampilkan pesan sukses jika perlu
-        return redirect('admin/daftar-hafalan')->with('success', 'Data hafalan berhasil dihapus.');
+        return redirect('admin/daftar-halaqoh')->with('success', 'Data halaqoh berhasil disimpan.');
+    }
+
+    public function updateHalaqoh($id)
+    {
+        $halaqoh = Halaqoh::with(['ustad'])->findOrFail($id);
+        $ustads = User::where('role', 'ustad')->get();
+
+        return view('pages.edit-halaqoh', compact('halaqoh', 'ustads'));
+    }
+
+    public function editHalaqoh(Request $request, $id)
+    {
+        $request->validate([
+            'nama_halaqoh' => 'required|string|max:50',
+            'ustad_pengampu' => 'required|exists:users,id,role,ustad',
+        ]);
+
+        $halaqoh = Halaqoh::findOrFail($id);
+        $halaqoh->update([
+            'nama_halaqoh' => $request->nama_halaqoh,
+            'ustad_pengampu' => $request->ustad_pengampu,
+        ]);
+
+        return redirect('admin/daftar-halaqoh')->with('success', 'Data halaqoh berhasil diupdate.');
+    }
+    
+    public function deleteHalaqoh($id)
+    {
+        $halaqoh = Halaqoh::findOrFail($id);
+
+        // Hapus halaqoh
+        $halaqoh->delete();
+
+        return redirect('admin/daftar-halaqoh')->with('success', 'Halaqoh berhasil dihapus.');
+    }
+
+    public function daftarKelas(Request $request)
+    {
+        // Use the query builder to get a paginated result
+        $kelas = Kelas::paginate($request->input('per_page', 10));
+        $title = 'Hapus Data Kelas?';
+        $text = "Apakah anda yakin ingin menghapus data ini?";
+        confirmDelete($title, $text);
+
+        return view('pages.daftar-kelas', compact('kelas'));
+    }
+
+    public function tambahKelas()
+    {
+        $kelas = Kelas::all();
+
+        return view('pages.tambah-kelas',compact('kelas'));
+    }
+
+    public function storeKelas (Request $request)
+    {
+        $request->validate([
+        ]);
+        // Buat instansiasi model Hafalan
+        $kelas = new Kelas();
+        $kelas->kelas = $request->input('kelas');
+        
+        $kelas->save();
+
+        // Redirect atau tampilkan pesan sukses jika perlu
+        return redirect('admin/daftar-kelas')->with('success', 'Data kelas berhasil disimpan.');
+    }
+
+    public function updateKelas($id)
+    {
+        $kelas = Kelas::findOrFail($id);
+
+        return view('pages.edit-kelas',compact('kelas'));
+    }
+
+    public function editKelas(Request $request, $id)
+    {
+        $request->validate([
+            'kelas' => 'required|string|max:50',
+        ]);
+
+        $kelas = Kelas::findOrFail($id);
+        $kelas->update([
+            'kelas' => $request->kelas,
+        ]);
+
+        return redirect('admin/daftar-kelas')->with('success', 'Data kelas berhasil diupdate.');
     }
 
 }
