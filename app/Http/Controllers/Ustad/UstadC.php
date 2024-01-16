@@ -79,7 +79,7 @@ class UstadC extends Controller
         $hafalan = Hafalan::with(['surat_1', 'surat_2'])->get();
         $surat = Surat::all();
         $ustadId = Auth::id();
-        $santriUserIds = Santri::where('halaqoh_id', function($query) use ($ustadId) {
+        $santriUserIds = Santri::whereIn('halaqoh_id', function($query) use ($ustadId) {
             $query->select('id')->from('halaqoh')->where('ustad_pengampu', $ustadId);
         })->pluck('id_santri');
 
@@ -185,34 +185,34 @@ class UstadC extends Controller
     }
 
     public function reviewed(Request $request, $id)
-{
-    $hafalan = Hafalan::findOrFail($id);
+    {
+        $hafalan = Hafalan::findOrFail($id);
 
-    // Perbarui kolom-kolom yang diperbolehkan
-    $hafalan->update([
-        'status' => 'sudah diperiksa',
-        'kelancaran' => $request->input('kelancaran'),
-        'ulang' => $request->input('ulang'),
-        'catatan_teks' => $request->input('catatan_teks'),
-        'diperiksa_oleh' => $request->input('diperiksa_oleh'),
-    ]);
+        // Perbarui kolom-kolom yang diperbolehkan
+        $hafalan->update([
+            'status' => 'sudah diperiksa',
+            'kelancaran' => $request->input('kelancaran'),
+            'ulang' => $request->input('ulang'),
+            'catatan_teks' => $request->input('catatan_teks'),
+            'diperiksa_oleh' => $request->input('diperiksa_oleh'),
+        ]);
 
-    // Cek apakah ada file catatan_suara yang diupload
-    if ($request->hasFile('catatan_suara') && $request->file('catatan_suara')->isValid()) {
-        // Hapus file catatan_suara yang lama
-        if ($hafalan->catatan_suara) {
-            Storage::delete('file/catatan_suara/' . $hafalan->catatan_suara);
+        // Cek apakah ada file catatan_suara yang diupload
+        if ($request->hasFile('catatan_suara') && $request->file('catatan_suara')->isValid()) {
+            // Hapus file catatan_suara yang lama
+            if ($hafalan->catatan_suara) {
+                Storage::delete('file/catatan_suara/' . $hafalan->catatan_suara);
+            }
+
+            // Upload file baru
+            $catatan_suara = $request->file('catatan_suara');
+            $suara_name = date('ymdhis') . ".mp3"; // Ekstensi MP3
+            $catatan_suara->storeAs('file/catatan_suara', $suara_name);
+
+            // Simpan nama file ke database
+            $hafalan->update(['catatan_suara' => $suara_name]);
         }
 
-        // Upload file baru
-        $catatan_suara = $request->file('catatan_suara');
-        $suara_name = date('ymdhis') . ".mp3"; // Ekstensi MP3
-        $catatan_suara->storeAs('file/catatan_suara', $suara_name);
-
-        // Simpan nama file ke database
-        $hafalan->update(['catatan_suara' => $suara_name]);
+        return redirect('ustad/daftar-hafalan')->with('success', 'Data hafalan berhasil diperbarui.');
     }
-
-    return redirect('ustad/daftar-hafalan')->with('success', 'Data hafalan berhasil diperbarui.');
-}
 }

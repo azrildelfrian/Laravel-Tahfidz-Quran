@@ -27,7 +27,7 @@ class AdminC extends Controller
         $hafalanAddedToday = Hafalan::whereDate('created_at', $today)->count();
         $hafalanDeletedToday = Hafalan::whereDate('deleted_at', $today)->count();
 
-        $userCount = User::count();
+        $userCount = User::whereIn('role', ['ustad', 'santri'])->count();
         $hafalanCount = Hafalan::count();
         return view('admin.dashboard', compact('userCount', 'hafalanCount', 'userAddedToday', 'userDeletedToday', 'hafalanAddedToday', 'hafalanDeletedToday'));
     }
@@ -174,7 +174,6 @@ class AdminC extends Controller
             'kelancaran' => 'nullable',
             'ulang' => 'in:mengulang,tidak',
             'tanggal_hafalan' => 'required|date',
-            'file_hafalan' => 'nullable|max:0', // 0 berarti tanpa batasan
         ]);
         // Buat instansiasi model Hafalan
         $hafalan = new Hafalan();
@@ -325,9 +324,9 @@ class AdminC extends Controller
 
     public function daftarAkun(Request $request)
     {
-        $akunQuery = User::query();
+        $akunQuery = User::where('role', 'ustad');
 
-        // Tambahkan kondisi pencarian jika parameter 'search' ada di URL
+    // Tambahkan kondisi pencarian jika parameter 'search' ada di URL
         if ($request->has('search')) {
             $search = $request->input('search');
             $akunQuery->where(function ($query) use ($search) {

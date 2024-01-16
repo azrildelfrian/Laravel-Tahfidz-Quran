@@ -41,9 +41,6 @@ class RegisteredUserController extends Controller
             'email' => 'required|email|unique:users,email',
             'name' => 'required|string',
             'password' => 'required|string|min:6',
-            'halaqoh_id' => $request->role === 'santri' ? 'required' : '',
-            'kelas_id' => $request->role === 'santri' ? 'required' : '',
-            'nomor_id' => $request->role === 'santri' ? 'required' : '',
         ]);
 
         $user = User::create([
@@ -53,31 +50,7 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        if ($request->role === 'admin') {
-            // Logika atau kode khusus untuk akun admin
-            // Misalnya, membuat entri di tabel admin, dll.
-            
-            // Event untuk akun admin
-            event(new Registered($user));
-        } elseif ($request->role === 'ustad') {
-            // Logika atau kode khusus untuk akun ustad
-            // Misalnya, membuat entri di tabel ustad, dll.
-            
-            // Event untuk akun ustad
-            event(new Registered($user));
-        } elseif ($request->role === 'santri') {
-            $santri = Santri::create([
-                'id_santri' => $user->id,
-                'halaqoh_id' => $request->halaqoh_id,
-                'kelas_id' => $request->kelas_id,
-                'nomor_id' => $request->nomor_id,
-            ]);
-
-            // Event untuk akun santri
-            event(new Registered($user, $santri));
-
-            // Gunakan dd untuk melihat data akun santri
-        }
+        event(new Registered($user));
 
         // Gunakan dd untuk melihat data akun
         // dd($user);

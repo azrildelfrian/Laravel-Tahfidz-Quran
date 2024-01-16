@@ -19,7 +19,6 @@
         <option value="">=== Silahkan Pilih Role ===</option>
         <option value="admin">Admin</option>
         <option value="ustad">Ustad</option>
-        <option value="santri">Santri</option>
       </select>
       <x-input-error :messages="$errors->get('role')" class="mt-2" />
     </div>
@@ -44,41 +43,7 @@
       <x-input-error :messages="$errors->get('password')" class="mt-2" />
     </div>
 
-    <div class="role-fields" style="display: none;">
-      <div class="mb-3">
-        <label for="Role" class="form-label">Halaqoh</label>
-        <select name="halaqoh_id" id="halaqoh" class="form-control">
-          <option value="">=== Silahkan Pilih Halaqoh ===</option>
-          @foreach ($halaqoh as $item)
-            <option value="{{ $item->id }}">{{ $item->nama_halaqoh }}</option>
-          @endforeach
-        </select>
-      </div>
-
-      <div class="mb-3">
-        <label for="Role" class="form-label">Kelas</label>
-        <select name="kelas_id" id="kelas" class="form-control">
-          <option value="">=== Silahkan Pilih Kelas ===</option>
-          @foreach ($kelas as $item)
-            <option value="{{ $item->id }}">{{ $item->kelas }}</option>
-          @endforeach
-        </select>
-      </div>
-
-      <div class="mb-3">
-        <label for="nomor_induk" class="form-label">Nomor Induk</label>
-        <input type="text" name="nomor_id" class="form-control" id="ni" aria-describedby="nameHelp" placeholder="Masukkan Nomor Induk">
-      </div>
-    </div>
-
     <a href="{{ url('/admin/daftar-akun/') }}" class="btn btn-dark">Kembali</a>
     <button type="submit" class="btn btn-primary">Simpan</button>
   </form>
-
-  <script>
-    document.getElementById('role').addEventListener('change', function() {
-      var roleFields = document.querySelector('.role-fields');
-      roleFields.style.display = this.value === 'santri' ? 'block' : 'none';
-    });
-  </script>
 @endsection

@@ -12,7 +12,7 @@
                       <div class="row alig n-items-start">
                         <div class="col-8">
                           <h5 class="card-title mb-9 fw-semibold">
-                            Jumlah Akun 
+                            Jumlah Akun Ustad & Santri 
                           </h5>
                           <h4 class="fw-semibold mb-3">{{ $userCount }}</h4>
                           @if($userAddedToday != 0)

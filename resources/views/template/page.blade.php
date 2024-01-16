@@ -113,7 +113,7 @@
               <span>
                 <i class="ti ti-users"></i>
               </span>
-              <span class="hide-menu">Daftar Akun</span>
+              <span class="hide-menu">Daftar Ustad</span>
             </a>
           </li>
           <li class="sidebar-item">
