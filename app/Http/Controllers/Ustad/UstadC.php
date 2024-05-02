@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Ustad;
 
-use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
@@ -210,13 +209,16 @@ class UstadC extends Controller
         if ($request->hasFile('catatan_suara') && $request->file('catatan_suara')->isValid()) {
             // Hapus file catatan_suara yang lama
             if ($hafalan->catatan_suara) {
-                Storage::delete('file/catatan_suara/' . $hafalan->catatan_suara);
+                $file_path = public_path('file/catatan_suara/') . $hafalan->catatan_suara;
+                if (file_exists($file_path)) {
+                    unlink($file_path);
+                }
             }
 
             // Upload file baru
             $catatan_suara = $request->file('catatan_suara');
             $suara_name = date('ymdhis') . ".mp3"; // Ekstensi MP3
-            $catatan_suara->storeAs('file/catatan_suara', $suara_name);
+            $catatan_suara->move(public_path('file/catatan_suara/'), $suara_name);
 
             // Simpan nama file ke database
             $hafalan->update(['catatan_suara' => $suara_name]);

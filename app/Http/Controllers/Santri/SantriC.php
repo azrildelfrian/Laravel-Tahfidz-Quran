@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Santri;
 
 use App\Exports\HafalanExport;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
@@ -219,7 +218,10 @@ class SantriC extends Controller
 
         // Hapus file hafalan lama jika ada
         if ($hafalan->file_hafalan) {
-            Storage::delete('file/hafalan/' . $hafalan->file_hafalan);
+            $file_path = public_path('file/hafalan/') . $hafalan->file_hafalan;
+            if (file_exists($file_path)) {
+                unlink($file_path);
+            }
         }
 
         // Perbarui kolom-kolom yang diperbolehkan
