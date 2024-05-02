@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Ustad;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Hafalan;
@@ -20,9 +21,13 @@ class UstadC extends Controller
         $ustadId = Auth::id();
         $halaqohId = Halaqoh::where('ustad_pengampu', $ustadId)->value('id');
         $santriUserIds = Santri::where('halaqoh_id', $halaqohId)->pluck('id_santri');
+        $halaqoh = Halaqoh::where('ustad_pengampu', $ustadId)->first();
+
+        $halaqohName = $halaqoh ? $halaqoh->nama_halaqoh : 'Belum ada Halaqoh';
+        $santriCount = $santriUserIds->count();
 
         $today = Carbon::today();
-        
+
         $hafalanAddedToday = Hafalan::whereDate('created_at', $today)
             ->whereIn('user_id', $santriUserIds)
             ->count();
@@ -37,9 +42,13 @@ class UstadC extends Controller
 
         $hafalanCount = Hafalan::whereIn('user_id', $santriUserIds)->count();
 
-        return view('ustad.dashboard-ustad', compact('hafalanCount', 'hafalanAddedToday', 'hafalanDeletedToday', 'hafalanNeedChecked'));
+        return view('ustad.dashboard-ustad', compact('hafalanCount', 'hafalanAddedToday', 'hafalanDeletedToday', 'hafalanNeedChecked', 'halaqohName', 'santriCount'));
     }
 
+    public function export()
+    {
+        return Excel::download(new HafalanExport, 'data_hafalan.xlsx');
+    }
 
     // public function daftarHafalan()
     // {
@@ -67,7 +76,7 @@ class UstadC extends Controller
 
         $surat = Surat::all();
         $users = User::all();
-        
+
 
         return view('pages.daftar-hafalan', compact('users', 'hafalan', 'surat'));
     }
@@ -79,7 +88,7 @@ class UstadC extends Controller
         $hafalan = Hafalan::with(['surat_1', 'surat_2'])->get();
         $surat = Surat::all();
         $ustadId = Auth::id();
-        $santriUserIds = Santri::whereIn('halaqoh_id', function($query) use ($ustadId) {
+        $santriUserIds = Santri::whereIn('halaqoh_id', function ($query) use ($ustadId) {
             $query->select('id')->from('halaqoh')->where('ustad_pengampu', $ustadId);
         })->pluck('id_santri');
 
@@ -87,9 +96,9 @@ class UstadC extends Controller
             ->where('role', 'santri')
             ->get();
 
-        return view('pages.tambah-hafalan',compact('users','hafalan','surat'));
+        return view('pages.tambah-hafalan', compact('users', 'hafalan', 'surat'));
     }
-    
+
     public function detail($id)
     {
         $hafalan = Hafalan::with(['user' => function ($query) {
@@ -97,7 +106,7 @@ class UstadC extends Controller
         }, 'surat_1', 'surat_2'])->findOrFail($id);
         $surat = Surat::all();
         $users = User::all();
-        
+
         return view('pages.detail-hafalan', compact('id', 'users', 'hafalan', 'surat'));
     }
 
@@ -120,8 +129,8 @@ class UstadC extends Controller
         $santriUserId = Santri::where('halaqoh_id', $halaqohId)->pluck('id_santri');
 
         $hafalanQuery = Hafalan::with(['user' => function ($query) {
-                $query->withTrashed(); // Include soft-deleted users
-            }, 'surat_1', 'surat_2'])
+            $query->withTrashed(); // Include soft-deleted users
+        }, 'surat_1', 'surat_2'])
             ->whereIn('user_id', $santriUserId)
             ->orderBy('status', 'desc');
 
@@ -130,8 +139,8 @@ class UstadC extends Controller
             $search = $request->input('search');
             $hafalanQuery->where(function ($query) use ($search) {
                 $query->whereHas('user', function ($subquery) use ($search) {
-                        $subquery->where('name', 'LIKE', '%' . $search . '%');
-                    })
+                    $subquery->where('name', 'LIKE', '%' . $search . '%');
+                })
                     ->orWhereHas('surat_1', function ($subquery) use ($search) {
                         $subquery->where('nama_surat', 'LIKE', '%' . $search . '%');
                     })

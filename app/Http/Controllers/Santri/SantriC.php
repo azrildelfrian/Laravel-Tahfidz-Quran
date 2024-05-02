@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Santri;
 
+use App\Exports\HafalanExport;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Hafalan;
+use App\Models\Santri;
 use App\Models\Surat;
 use App\Models\User;
 
@@ -24,34 +27,43 @@ class SantriC extends Controller
             return redirect()->route('ustad.dashboard-ustad');
         }
 
+        $santri = Santri::with('halaqoh')->where('id_santri', $userlogin)->first();
+        $revisi = Hafalan::where('user_id', $userlogin)->where('ulang', 'mengulang')->count();
+
         $today = Carbon::today();
         $hafalanAddedToday = Hafalan::whereDate('created_at', $today)->where('user_id', $userlogin)->count();
         $hafalanDeletedToday = Hafalan::whereDate('deleted_at', $today)->where('user_id', $userlogin)->count();
         $hafalanCount = Hafalan::where('user_id', $userlogin)->count();
 
-        return view('dashboard', compact('hafalanCount', 'hafalanAddedToday', 'hafalanDeletedToday', 'user'));
+        return view('dashboard', compact('hafalanCount', 'hafalanAddedToday', 'hafalanDeletedToday', 'user', 'santri', 'revisi'));
     }
 
+    public function export()
+    {
+        $fileName = 'data_hafalan.pdf';
+
+        return Excel::download(new HafalanExport, $fileName, \Maatwebsite\Excel\Excel::DOMPDF);
+    }
 
     public function detail($id)
     {
         $hafalan = Hafalan::with(['surat_1', 'surat_2'])->findOrFail($id);
-    
+
         // Pemeriksaan apakah pengguna memiliki hak akses untuk melihat data ini
         if ($hafalan->user_id !== auth()->user()->id) {
             abort(404, 'Not Found');
         }
-    
+
         $surat = Surat::all();
         $users = User::all();
-    
+
         return view('pages.detail-hafalan', compact('id', 'users', 'hafalan', 'surat'));
     }
 
     public function revisi($id)
     {
         $hafalan = Hafalan::with(['surat_1', 'surat_2'])->findOrFail($id);
-        
+
         if ($hafalan->user_id !== auth()->user()->id) {
             abort(404, 'Not Found');
         }
@@ -59,7 +71,7 @@ class SantriC extends Controller
         if ($hafalan->ulang != 'mengulang') {
             abort(403, 'Unauthorized');
         }
-    
+
         // Check if the status is not 'sudah diperiksa'
         if ($hafalan->ulang === 'tidak') {
             abort(403, 'Unauthorized');
@@ -67,37 +79,37 @@ class SantriC extends Controller
 
         $surat = Surat::all();
         $users = User::all();
-        
+
         return view('pages.edit-hafalan', compact('id', 'users', 'hafalan', 'surat'));
     }
 
     public function daftarHafalan(Request $request)
     {
-            
-            $user = Auth::user();
-            if ($user->role !== 'santri') {
-                abort(404, 'Not Found');
-            }
-            
-            $userId = Auth::id();
-            $hafalanQuery = Hafalan::with(['surat_1', 'surat_2'])
-                ->where('user_id', $userId)->orderBy('created_at', 'desc');
-                // ->where('ulang', 'mengulang'); // Add this condition to filter by 'mengulang'
 
-            if ($request->has('search')) {
-                $search = $request->input('search');
-                $hafalanQuery->where(function ($query) use ($search) {
-                    $query->orWhereHas('surat_1', function ($subquery) use ($search) {
-                            $subquery->where('nama_surat', 'LIKE', '%' . $search . '%');
-                        })
-                        ->orWhereHas('surat_2', function ($subquery) use ($search) {
-                            $subquery->where('nama_surat', 'LIKE', '%' . $search . '%');
-                        })
-                        ->orWhere('tanggal_hafalan', 'LIKE', '%' . $search . '%')
-                        ->orWhere('status', 'LIKE', '%' . $search . '%')
-                        ->orWhere('ulang', 'LIKE', '%' . $search . '%');
-                });
-            }
+        $user = Auth::user();
+        if ($user->role !== 'santri') {
+            abort(404, 'Not Found');
+        }
+
+        $userId = Auth::id();
+        $hafalanQuery = Hafalan::with(['surat_1', 'surat_2'])
+            ->where('user_id', $userId)->orderBy('created_at', 'desc');
+        // ->where('ulang', 'mengulang'); // Add this condition to filter by 'mengulang'
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $hafalanQuery->where(function ($query) use ($search) {
+                $query->orWhereHas('surat_1', function ($subquery) use ($search) {
+                    $subquery->where('nama_surat', 'LIKE', '%' . $search . '%');
+                })
+                    ->orWhereHas('surat_2', function ($subquery) use ($search) {
+                        $subquery->where('nama_surat', 'LIKE', '%' . $search . '%');
+                    })
+                    ->orWhere('tanggal_hafalan', 'LIKE', '%' . $search . '%')
+                    ->orWhere('status', 'LIKE', '%' . $search . '%')
+                    ->orWhere('ulang', 'LIKE', '%' . $search . '%');
+            });
+        }
 
 
         $hafalan = $hafalanQuery->paginate($request->input('per_page', 10));
@@ -109,22 +121,22 @@ class SantriC extends Controller
     public function tambahHafalan()
     {
         $user = Auth::user();
-            if ($user->role !== 'santri') {
-                abort(404, 'Not Found');
-            }
+        if ($user->role !== 'santri') {
+            abort(404, 'Not Found');
+        }
         $hafalan = Hafalan::with(['surat_1', 'surat_2'])->get();
         $surat = Surat::all();
         $users = User::all();
 
-        return view('pages.tambah-hafalan',compact('users','hafalan','surat'));
+        return view('pages.tambah-hafalan', compact('users', 'hafalan', 'surat'));
     }
 
     public function riwayatHafalan(Request $request)
     {
         $user = Auth::user();
-            if ($user->role !== 'santri') {
-                abort(404, 'Not Found');
-            }
+        if ($user->role !== 'santri') {
+            abort(404, 'Not Found');
+        }
         $isAdmin = Auth::user()->role === 'admin';
 
         $hafalanQuery = Hafalan::with(['user', 'surat_1', 'surat_2'])->orderBy('created_at', 'desc');;
@@ -134,8 +146,8 @@ class SantriC extends Controller
             $search = $request->input('search');
             $hafalanQuery->where(function ($query) use ($search) {
                 $query->whereHas('user', function ($subquery) use ($search) {
-                        $subquery->where('name', 'LIKE', '%' . $search . '%');
-                    })
+                    $subquery->where('name', 'LIKE', '%' . $search . '%');
+                })
                     ->orWhereHas('surat_1', function ($subquery) use ($search) {
                         $subquery->where('nama_surat', 'LIKE', '%' . $search . '%');
                     })
@@ -161,9 +173,9 @@ class SantriC extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-            if ($user->role !== 'santri') {
-                abort(404, 'Not Found');
-            }
+        if ($user->role !== 'santri') {
+            abort(404, 'Not Found');
+        }
         $request->validate([
             'file' => 'max:0', // 0 berarti tanpa batasan
         ]);
@@ -200,9 +212,9 @@ class SantriC extends Controller
     public function edit(Request $request, $id)
     {
         $user = Auth::user();
-            if ($user->role !== 'santri') {
-                abort(404, 'Not Found');
-            }
+        if ($user->role !== 'santri') {
+            abort(404, 'Not Found');
+        }
         $hafalan = Hafalan::with(['surat_1', 'surat_2'])->findOrFail($id);
 
         // Hapus file hafalan lama jika ada
@@ -218,7 +230,7 @@ class SantriC extends Controller
             'ayat_setoran_2' => $request->input('ayat_setoran_2'),
             'status' => 'belum diperiksa',
             'kelancaran' => 'belum diperiksa',
-            'ulang' => 'belum diperiksa',            
+            'ulang' => 'belum diperiksa',
             'updated_at' => now(),
         ]);
 
@@ -233,7 +245,6 @@ class SantriC extends Controller
         // Simpan data hafalan ke database
         $hafalan->save();
 
-        return redirect('/detail-hafalan/'.$id)->with('success', 'Data hafalan berhasil diperbarui.');
+        return redirect('/detail-hafalan/' . $id)->with('success', 'Data hafalan berhasil diperbarui.');
     }
-
 }

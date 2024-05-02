@@ -20,4 +20,9 @@ class Santri extends Model
     {
         return $this->belongsTo(Halaqoh::class, 'halaqoh_id');
     }
+
+    public function ustad()
+    {
+        return $this->belongsTo(User::class, 'ustad_pengampu');
+    }
 }

@@ -13,17 +13,16 @@
 </head>
 
 <body>
-@include('sweetalert::alert')
+  @include('sweetalert::alert')
   <!--  Body Wrapper -->
-  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
-    data-sidebar-position="fixed" data-header-position="fixed">
+  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full" data-sidebar-position="fixed" data-header-position="fixed">
     <!-- Sidebar Start -->
     <aside class="left-sidebar">
       <!-- Sidebar scroll-->
       <div>
         <div class="brand-logo d-flex align-items-center justify-content-between">
-          <a href="{{ url('/') }}" class="text-nowrap logo-img">
-            <img src="{{ asset('assets/images/logos/dark-logo.svg') }}" width="180" alt="" />
+          <a href="{{ url('/') }}" class="text-nowrap logo-img text-center">
+            <h1>HafalanQu</h1>
           </a>
           <!--<h4>Assalamualaikum, {{ Auth::user()->name }}</h4>-->
           <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
@@ -38,15 +37,14 @@
               <span class="hide-menu">Home</span>
             </li>
             <li class="sidebar-item">
-              <a class="sidebar-link" 
-              @if (Auth::user()->role === 'admin')
-              href="{{ url('/admin/dashboard') }}"
-              @elseif (Auth::user()->role === 'ustad')
-              href="{{ url('/ustad/dashboard') }}"
-              @elseif (Auth::user()->role === 'santri')
-              href="{{ url('/dashboard') }}"
-              @endif
-              aria-expanded="false">
+              <a class="sidebar-link" @if (Auth::user()->role === 'admin')
+                href="{{ url('/admin/dashboard') }}"
+                @elseif (Auth::user()->role === 'ustad')
+                href="{{ url('/ustad/dashboard') }}"
+                @elseif (Auth::user()->role === 'santri')
+                href="{{ url('/dashboard') }}"
+                @endif
+                aria-expanded="false">
                 <span>
                   <i class="ti ti-layout-dashboard"></i>
                 </span>
@@ -58,15 +56,14 @@
               <span class="hide-menu">Hafalan</span>
             </li>
             <li class="sidebar-item">
-              <a class="sidebar-link" 
-              @if (Auth::user()->role === 'admin')
-              href="{{ url('/admin/daftar-hafalan') }}"
-              @elseif (Auth::user()->role === 'ustad')
-              href="{{ url('/ustad/daftar-hafalan') }}"
-              @elseif (Auth::user()->role === 'santri')
-              href="{{ url('/daftar-hafalan') }}"
-              @endif 
-              aria-expanded="false">
+              <a class="sidebar-link" @if (Auth::user()->role === 'admin')
+                href="{{ url('/admin/daftar-hafalan') }}"
+                @elseif (Auth::user()->role === 'ustad')
+                href="{{ url('/ustad/daftar-hafalan') }}"
+                @elseif (Auth::user()->role === 'santri')
+                href="{{ url('/daftar-hafalan') }}"
+                @endif
+                aria-expanded="false">
                 <span>
                   <i class="ti ti-article"></i>
                 </span>
@@ -74,15 +71,14 @@
               </a>
             </li>
             <li class="sidebar-item">
-              <a class="sidebar-link"
-              @if (Auth::user()->role === 'admin')
-              href="{{ url('/admin/tambah-hafalan') }}"
-              @elseif (Auth::user()->role === 'ustad')
-              href="{{ url('/ustad/tambah-hafalan') }}"
-              @elseif (Auth::user()->role === 'santri')
-              href="{{ url('/tambah-hafalan') }}"
-              @endif  
-              aria-expanded="false">
+              <a class="sidebar-link" @if (Auth::user()->role === 'admin')
+                href="{{ url('/admin/tambah-hafalan') }}"
+                @elseif (Auth::user()->role === 'ustad')
+                href="{{ url('/ustad/tambah-hafalan') }}"
+                @elseif (Auth::user()->role === 'santri')
+                href="{{ url('/tambah-hafalan') }}"
+                @endif
+                aria-expanded="false">
                 <span>
                   <i class="ti ti-plus"></i>
                 </span>
@@ -90,15 +86,14 @@
               </a>
             </li>
             <li class="sidebar-item">
-              <a class="sidebar-link" 
-              @if (Auth::user()->role === 'admin')
-              href="{{ url('/admin/riwayat-hafalan') }}"
-              @elseif (Auth::user()->role === 'ustad')
-              href="{{ url('/ustad/riwayat-hafalan') }}"
-              @elseif (Auth::user()->role === 'santri')
-              href="{{ url('/riwayat-hafalan') }}"
-              @endif 
-              aria-expanded="false">
+              <a class="sidebar-link" @if (Auth::user()->role === 'admin')
+                href="{{ url('/admin/riwayat-hafalan') }}"
+                @elseif (Auth::user()->role === 'ustad')
+                href="{{ url('/ustad/riwayat-hafalan') }}"
+                @elseif (Auth::user()->role === 'santri')
+                href="{{ url('/riwayat-hafalan') }}"
+                @endif
+                aria-expanded="false">
                 <span>
                   <i class="ti ti-history"></i>
                 </span>
@@ -107,46 +102,49 @@
             </li>
             @if (Auth::user()->role === 'admin')
             <li class="sidebar-item">
-              <a class="sidebar-link" 
-              href="{{ url('/admin/daftar-akun') }}"
-              aria-expanded="false">
-              <span>
-                <i class="ti ti-users"></i>
+              <a class="sidebar-link" href="{{ url('/admin/daftar-akun') }}" aria-expanded="false">
+                <span>
+                  <i class="ti ti-users"></i>
+                </span>
+                <span class="hide-menu">Daftar Ustad</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="{{ url('/admin/daftar-santri') }}" aria-expanded="false">
+                <span>
+                  <i class="ti ti-users"></i>
+                </span>
+                <span class="hide-menu">Daftar Santri</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="{{ url('/admin/daftar-halaqoh') }}" aria-expanded="false">
+                <span>
+                  <i class="ti ti-triangle-square-circle"></i>
+                </span>
+                <span class="hide-menu">Daftar Halaqoh</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="{{ url('/admin/daftar-kelas') }}" aria-expanded="false">
+                <span>
+                  <i class="ti ti-columns"></i>
+                </span>
+                <span class="hide-menu">Daftar Kelas</span>
+              </a>
+            </li>
+            @endif
+            <li class="sidebar-item">
+              <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <a class="sidebar-link btn btn-outline-danger m-1" href="{{ route('logout') }}" onclick="event.preventDefault();this.closest('form').submit();" aria-expanded="false">
+              </form>
+              <span class="text-danger">
+                <i class="ti ti-logout"></i>
               </span>
-              <span class="hide-menu">Daftar Ustad</span>
-            </a>
-          </li>
-          <li class="sidebar-item">
-              <a class="sidebar-link" 
-              href="{{ url('/admin/daftar-santri') }}"
-              aria-expanded="false">
-              <span>
-                <i class="ti ti-users"></i>
-              </span>
-              <span class="hide-menu">Daftar Santri</span>
-            </a>
-          </li>
-          <li class="sidebar-item">
-              <a class="sidebar-link" 
-              href="{{ url('/admin/daftar-halaqoh') }}"
-              aria-expanded="false">
-              <span>
-                <i class="ti ti-triangle-square-circle"></i>
-              </span>
-              <span class="hide-menu">Daftar Halaqoh</span>
-            </a>
-          </li>
-          <li class="sidebar-item">
-              <a class="sidebar-link" 
-              href="{{ url('/admin/daftar-kelas') }}"
-              aria-expanded="false">
-              <span>
-                <i class="ti ti-columns"></i>
-              </span>
-              <span class="hide-menu">Daftar Kelas</span>
-            </a>
-          </li>
-          @endif
+              <span class="hide-menu text-danger fw-bold">Keluar</span>
+              </a>
+            </li>
           </ul>
 
         </nav>
@@ -166,19 +164,18 @@
                 <i class="ti ti-menu-2"></i>
               </a>
             </li>
-            <li class="nav-item">
+            <!-- <li class="nav-item">
               <a class="nav-link nav-icon-hover" href="javascript:void(0)">
                 <i class="ti ti-bell-ringing"></i>
                 <div class="notification bg-primary rounded-circle"></div>
               </a>
-            </li>
+            </li> -->
           </ul>
           <div class="navbar-collapse justify-content-end px-0" id="navbarNav">
             <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
-            {{ Auth::user()->name }}
+              {{ Auth::user()->name }}
               <li class="nav-item dropdown">
-                <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown"
-                  aria-expanded="false">
+                <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown" aria-expanded="false">
                   <i class="ti ti-user-circle"></i>
                   <!-- <img src="{{ asset('assets/images/profile/user-1.jpg') }}" alt="" width="35" height="35" class="rounded-circle"> -->
                 </a>
@@ -196,9 +193,13 @@
                       <i class="ti ti-list-check fs-6"></i>
                       <p class="mb-0 fs-3">My Task</p>
                     </a>-->
+                    <a href="{{ url('/profile') }}" class="d-flex align-items-center gap-2 dropdown-item">
+                      <i class="ti ti-user fs-6"></i>
+                      <p class="mb-0 fs-3">Profil</p>
+                    </a>
                     <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                    <a href="{{ route('logout') }}" onclick="event.preventDefault();this.closest('form').submit();" class="btn btn-outline-danger mx-3 mt-2 d-block">Keluar</a>
+                      @csrf
+                      <a href="{{ route('logout') }}" id="delete_confirm" onclick="event.preventDefault();this.closest('form').submit();" class="btn btn-outline-danger mx-3 mt-2 d-block">Keluar</a>
                     </form>
                   </div>
                 </div>
