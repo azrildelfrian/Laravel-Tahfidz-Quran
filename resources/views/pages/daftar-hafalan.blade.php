@@ -10,6 +10,9 @@
                 </div>
             </form>
         </div>
+        @if(auth()->user()->role === 'admin')
+        <a href="{{ url('/admin/riwayat-hafalan/export') }}" class="btn btn-outline-danger mx-2"><i class="ti ti-download fs-6"></i> Download PDF</a>
+        @endif
         <div class="text-right">
             <form action="{{ url()->current() }}" method="GET" class="form-inline">
                 <label for="per_page" class="mr-2">Show:</label>
@@ -23,7 +26,7 @@
             </form>
         </div>
     </div>
-    <table class="table">
+    <table class="table table-striped">
         <thead>
             <tr>
                 @if (Auth::user()->role === 'admin' || Auth::user()->role === 'ustad')
@@ -33,7 +36,7 @@
                 <th>Sampai</th>
                 <th>Tanggal</th>
                 <th>Status</th>
-                <th>Mengulang</th>
+                <!-- <th>Mengulang</th> -->
                 <th>Aksi</th>
             </tr>
         </thead>
@@ -61,7 +64,7 @@
                     }}">{{ $item->status }}
                     </span>
                 </td>
-                <td>
+                <!-- <td>
                     @if($item->ulang === 'mengulang' || $item->ulang === 'tidak')
                     <span class="badge 
                     {{ $item->ulang === 'mengulang' ? 'bg-danger' : 
@@ -71,7 +74,7 @@
                     @else
                     -
                     @endif
-                </td>
+                </td> -->
                 <td>
                     @if(auth()->user()->role === 'admin')
                     <div class="dropdown">

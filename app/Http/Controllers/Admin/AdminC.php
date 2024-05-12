@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Exports\HafalanExport;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
@@ -37,11 +35,6 @@ class AdminC extends Controller
     public function userTrashed()
     {
         return $this->belongsTo(User::class, 'user_id')->withTrashed();
-    }
-
-    public function export()
-    {
-        return Excel::download(new HafalanExport, 'data_hafalan.xlsx');
     }
 
     public function daftarHafalan(Request $request)
@@ -237,7 +230,7 @@ class AdminC extends Controller
             'diperiksa_oleh' => 'nullable|string|max:255',
             'catatan_teks' => 'nullable|string',
             'tanggal_hafalan' => 'required|date',
-            'file_hafalan' => 'nullable|max:0',
+            'file_hafalan' => 'nullable',
         ]);
 
         // Hapus file hafalan lama jika ada
@@ -286,7 +279,7 @@ class AdminC extends Controller
             'ulang' => 'required|in:mengulang,tidak',
             'catatan_teks' => 'nullable|string',
             'diperiksa_oleh' => 'nullable|string|max:255',
-            'catatan_suara' => 'nullable|max:0',
+            'catatan_suara' => 'nullable',
         ]);
 
         // Perbarui kolom-kolom yang diperbolehkan
@@ -325,12 +318,21 @@ class AdminC extends Controller
             }
         }
 
+        // Hapus catatan_suara dari penyimpanan jika ada
+        if (!empty($hafalan->catatan_suara)) {
+            $file_path = public_path('file/catatan_suara/') . $hafalan->catatan_suara;
+            if (file_exists($file_path)) {
+                unlink($file_path);
+            }
+        }
+
         // Hapus data hafalan dari database
         $hafalan->delete();
 
         // Redirect atau tampilkan pesan sukses jika perlu
         return redirect('admin/daftar-hafalan')->with('success', 'Data hafalan berhasil dihapus.');
     }
+
 
     public function daftarAkun(Request $request)
     {

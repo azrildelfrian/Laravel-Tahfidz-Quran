@@ -81,11 +81,12 @@
                 </h5>
                 <h3>{{ $halaqohName }}</h3>
                 <h6> {{ $santriCount }} Santri </h6>
+                <a href="{{ url('ustad/daftar-santri') }}" class="btn btn-dark mt-2">Lihat</a>
               </div>
               <div class="col-4">
                 <div class="d-flex justify-content-end">
                   <div class="text-white bg-dark rounded-circle p-6 d-flex align-items-center justify-content-center">
-                    <i class="ti ti-plus fs-6"></i>
+                    <i class="ti ti-triangle-square-circle fs-6"></i>
                   </div>
                 </div>
               </div>

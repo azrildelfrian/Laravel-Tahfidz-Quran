@@ -5,7 +5,7 @@
         </h2>
 
         <p class="mt-1 text-sm text-gray-600">
-            {{ __('Pastikan menggunakan paswoord yang sulit ditebak untuk memastikan keamanan.') }}
+            {{ __('Pastikan menggunakan password yang sulit ditebak untuk memastikan keamanan.') }}
         </p>
     </header>
 

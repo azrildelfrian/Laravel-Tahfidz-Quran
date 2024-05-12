@@ -100,6 +100,7 @@ Route::middleware(['auth', 'role:ustad'])->group(function () {
     Route::get('ustad/periksa-hafalan/{id}', [UstadC::class, 'periksa'])->name('ustad.pages.periksa-hafalan');
     Route::patch('ustad/hafalan/reviewed/{id}', [UstadC::class, 'reviewed'])->name('ustad.hafalan.reviewed');
     Route::get('ustad/riwayat-hafalan/export/', [AdminC::class, 'export']);
+    Route::get('ustad/daftar-santri', [UstadC::class, 'daftarSantri'])->name('pages.daftar-santri');
 });
 
 Route::get('/dashboard', [SantriC::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');

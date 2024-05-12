@@ -129,12 +129,13 @@ class SuratSeeder extends Seeder
             ['nama_surat' => 'Al-Falaq (الفلق)', 'ayat' => 5],
             ['nama_surat' => 'An-Nas (الناس)', 'ayat' => 6],
         ];
-        
+
 
         foreach ($surat as $item) {
             DB::table('surat')->insert([
                 'nama_surat' => $item['nama_surat'],
                 'ayat' => $item['ayat'],
+                'juz' => $item['juz'],
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

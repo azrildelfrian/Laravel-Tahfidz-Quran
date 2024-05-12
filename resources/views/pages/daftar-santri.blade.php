@@ -53,6 +53,9 @@
                             <i class="ti ti-dots-vertical"></i>
                         </button>
                         <div class="dropdown-menu">
+                            <a href="{{ route('admin.edit-santri', $item->id) }}" class="dropdown-item bg-dark text-white">
+                                <i class="ti ti-eye me-1"></i> Detail</a>
+                            @if (Auth::user()->role === 'admin')
                             <a href="{{ route('admin.edit-santri', $item->id) }}" class="dropdown-item bg-warning text-white">
                                 <i class="ti ti-edit me-1"></i> Edit</a>
                             <form action="{{ route('admin.delete.santri', $item->id) }}" method="post">
@@ -60,6 +63,7 @@
                                 @method('DELETE')
                                 <button type="submit" id="delete_confirm" data-confirm-delete="true" class="dropdown-item bg-danger text-white"><i class="ti ti-trash me-1"></i> Delete</button>
                             </form>
+                            @endif
                         </div>
                     </div>
                 </td>

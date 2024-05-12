@@ -100,6 +100,16 @@
                 <span class="hide-menu">Riwayat Hafalan</span>
               </a>
             </li>
+            @if (Auth::user()->role === 'ustad')
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="{{ url('/ustad/daftar-santri') }}" aria-expanded="false">
+                <span>
+                  <i class="ti ti-users"></i>
+                </span>
+                <span class="hide-menu">Daftar Santri</span>
+              </a>
+            </li>
+            @endif
             @if (Auth::user()->role === 'admin')
             <li class="sidebar-item">
               <a class="sidebar-link" href="{{ url('/admin/daftar-akun') }}" aria-expanded="false">
@@ -133,7 +143,6 @@
                 <span class="hide-menu">Daftar Kelas</span>
               </a>
             </li>
-            @endif
             <li class="sidebar-item">
               <form method="POST" action="{{ route('logout') }}">
                 @csrf
@@ -145,6 +154,7 @@
               <span class="hide-menu text-danger fw-bold">Keluar</span>
               </a>
             </li>
+            @endif
           </ul>
 
         </nav>
@@ -199,7 +209,7 @@
                     </a>
                     <form method="POST" action="{{ route('logout') }}">
                       @csrf
-                      <a href="{{ route('logout') }}" id="delete_confirm" onclick="event.preventDefault();this.closest('form').submit();" class="btn btn-outline-danger mx-3 mt-2 d-block">Keluar</a>
+                      <a href="{{ route('logout') }}" onclick="event.preventDefault();this.closest('form').submit();" class="btn btn-outline-danger mx-3 mt-2 d-block">Keluar</a>
                     </form>
                   </div>
                 </div>

@@ -18,14 +18,19 @@ class UstadC extends Controller
     public function index()
     {
         $ustadId = Auth::id();
-        $halaqohId = Halaqoh::where('ustad_pengampu', $ustadId)->value('id');
-        $santriUserIds = Santri::where('halaqoh_id', $halaqohId)->pluck('id_santri');
-        $halaqoh = Halaqoh::where('ustad_pengampu', $ustadId)->first();
 
-        $halaqohName = $halaqoh ? $halaqoh->nama_halaqoh : 'Belum ada Halaqoh';
+        // Mengambil semua ID santri yang terkait dengan halaqoh yang dibimbing oleh ustad
+        $santriUserIds = Santri::whereHas('halaqoh', function ($query) use ($ustadId) {
+            $query->where('ustad_pengampu', $ustadId);
+        })->pluck('id_santri');
+
+        // Mengambil nama halaqoh
+        $halaqohName = Halaqoh::where('ustad_pengampu', $ustadId)->value('nama_halaqoh') ?? 'Belum ada Halaqoh';
+
+        // Menghitung jumlah santri
         $santriCount = $santriUserIds->count();
 
-        $today = Carbon::today();
+        $today = now();
 
         $hafalanAddedToday = Hafalan::whereDate('created_at', $today)
             ->whereIn('user_id', $santriUserIds)
@@ -43,6 +48,35 @@ class UstadC extends Controller
 
         return view('ustad.dashboard-ustad', compact('hafalanCount', 'hafalanAddedToday', 'hafalanDeletedToday', 'hafalanNeedChecked', 'halaqohName', 'santriCount'));
     }
+
+    // public function index()
+    // {
+    //     $ustadId = Auth::id();
+    //     $halaqohId = Halaqoh::where('ustad_pengampu', $ustadId)->value('id');
+    //     $santriUserIds = Santri::where('halaqoh_id', $halaqohId)->pluck('id_santri');
+    //     $halaqoh = Halaqoh::where('ustad_pengampu', $ustadId)->first();
+
+    //     $halaqohName = $halaqoh ? $halaqoh->nama_halaqoh : 'Belum ada Halaqoh';
+    //     $santriCount = $santriUserIds->count();
+
+    //     $today = Carbon::today();
+
+    //     $hafalanAddedToday = Hafalan::whereDate('created_at', $today)
+    //         ->whereIn('user_id', $santriUserIds)
+    //         ->count();
+
+    //     $hafalanDeletedToday = Hafalan::whereDate('deleted_at', $today)
+    //         ->whereIn('user_id', $santriUserIds)
+    //         ->count();
+
+    //     $hafalanNeedChecked = Hafalan::whereIn('user_id', $santriUserIds)
+    //         ->where('status', 'belum diperiksa') // Hanya hitung yang belum diperiksa
+    //         ->count();
+
+    //     $hafalanCount = Hafalan::whereIn('user_id', $santriUserIds)->count();
+
+    //     return view('ustad.dashboard-ustad', compact('hafalanCount', 'hafalanAddedToday', 'hafalanDeletedToday', 'hafalanNeedChecked', 'halaqohName', 'santriCount'));
+    // }
 
     public function export()
     {
@@ -64,9 +98,10 @@ class UstadC extends Controller
 
     public function daftarHafalan(Request $request)
     {
+        //kalau ada pluck lebih dari 2 pakai whereIn, kalau pakai value tidak usah
         $ustadId = Auth::id();
-        $halaqohId = Halaqoh::where('ustad_pengampu', $ustadId)->value('id');
-        $santriUserId = Santri::where('halaqoh_id', $halaqohId)->pluck('id_santri');
+        $halaqohId = Halaqoh::where('ustad_pengampu', $ustadId)->pluck('id');
+        $santriUserId = Santri::whereIn('halaqoh_id', $halaqohId)->pluck('id_santri');
 
         $hafalan = Hafalan::with(['user', 'surat_1', 'surat_2'])
             ->whereIn('user_id', $santriUserId)
@@ -124,8 +159,8 @@ class UstadC extends Controller
     public function riwayatHafalan(Request $request)
     {
         $ustadId = Auth::id();
-        $halaqohId = Halaqoh::where('ustad_pengampu', $ustadId)->value('id');
-        $santriUserId = Santri::where('halaqoh_id', $halaqohId)->pluck('id_santri');
+        $halaqohId = Halaqoh::where('ustad_pengampu', $ustadId)->pluck('id');
+        $santriUserId = Santri::whereIn('halaqoh_id', $halaqohId)->pluck('id_santri');
 
         $hafalanQuery = Hafalan::with(['user' => function ($query) {
             $query->withTrashed(); // Include soft-deleted users
@@ -225,5 +260,19 @@ class UstadC extends Controller
         }
 
         return redirect('ustad/daftar-hafalan')->with('success', 'Data hafalan berhasil diperbarui.');
+    }
+
+    public function daftarSantri(Request $request)
+    {
+        // $ustadId = Auth::id();
+        // $halaqohId = Halaqoh::where('ustad_pengampu', $ustadId)->pluck('id');
+        // $santriUserId = Santri::where('halaqoh_id', $halaqohId)->pluck('id_santri');
+
+        $ustadId = Auth::id();
+        $halaqohIds = Halaqoh::where('ustad_pengampu', $ustadId)->pluck('id');
+        $santriUserIds = Santri::whereIn('halaqoh_id', $halaqohIds)->pluck('id_santri');
+        $santri = Santri::whereIn('id_santri', $santriUserIds)->paginate($request->input('per_page', 10));
+
+        return view('pages.daftar-santri', compact('santri'));
     }
 }
