@@ -88,8 +88,8 @@
                             <h5 class="card-title mb-9 fw-semibold text-white">
                                 Halaqoh:
                             </h5>
-                            {{-- <h3>{{ optional($santri->halaqoh)->nama_halaqoh ?? 'Belum masuk halaqoh' }}</h3> --}}
-                            {{-- <h4>( {{ $santri->halaqoh->ustad->name }} )</h4> --}}
+                            <h3>{{ optional($santri->halaqoh)->nama_halaqoh ?? 'Belum masuk halaqoh' }}</h3>
+                            <h4>( {{ $santri->halaqoh->ustad->name }} )</h4>
                         </div>
                     </div>
                 </div>
