@@ -39,18 +39,22 @@ class AdminC extends Controller
 
     public function daftarHafalan(Request $request)
     {
-        $hafalanQuery = Hafalan::with(['user' => function ($query) {
-            $query->withTrashed(); // Include soft-deleted users
-        }, 'surat_1', 'surat_2'])
-            ->orderBy('created_at', 'desc');
+        $hafalanQuery = Hafalan::with([
+            'user' => function ($query) {
+                $query->withTrashed(); // Include soft-deleted users
+            },
+            'surat_1',
+            'surat_2',
+        ])->orderBy('created_at', 'desc');
 
         // Search functionality
         if ($request->has('search')) {
             $search = $request->input('search');
             $hafalanQuery->where(function ($query) use ($search) {
-                $query->whereHas('user', function ($subquery) use ($search) {
-                    $subquery->withTrashed()->where('name', 'LIKE', '%' . $search . '%');
-                })
+                $query
+                    ->whereHas('user', function ($subquery) use ($search) {
+                        $subquery->withTrashed()->where('name', 'LIKE', '%' . $search . '%');
+                    })
                     ->orWhereHas('surat_1', function ($subquery) use ($search) {
                         $subquery->where('nama_surat', 'LIKE', '%' . $search . '%');
                     })
@@ -69,12 +73,11 @@ class AdminC extends Controller
         $users = User::all(); // Consider using withTrashed here if needed
 
         $title = 'Hapus Data Hafalan!';
-        $text = "Apakah anda yakin ingin menghapus data ini?";
+        $text = 'Apakah anda yakin ingin menghapus data ini?';
         confirmDelete($title, $text);
 
         return view('pages.daftar-hafalan', compact('users', 'hafalan', 'surat'));
     }
-
 
     // public function daftarHafalan()
     // {
@@ -100,9 +103,13 @@ class AdminC extends Controller
 
     public function detail($id)
     {
-        $hafalan = Hafalan::with(['user' => function ($query) {
-            $query->withTrashed(); // Include soft-deleted users
-        }, 'surat_1', 'surat_2'])->findOrFail($id);
+        $hafalan = Hafalan::with([
+            'user' => function ($query) {
+                $query->withTrashed(); // Include soft-deleted users
+            },
+            'surat_1',
+            'surat_2',
+        ])->findOrFail($id);
 
         $surat = Surat::all();
         $users = User::all(); // Consider using withTrashed here if needed
@@ -130,18 +137,22 @@ class AdminC extends Controller
 
     public function riwayatHafalan(Request $request)
     {
-        $hafalanQuery = Hafalan::with(['user' => function ($query) {
-            $query->withTrashed(); // Include soft-deleted users
-        }, 'surat_1', 'surat_2'])
-            ->orderBy('created_at', 'desc'); // Order by created_at in descending order
+        $hafalanQuery = Hafalan::with([
+            'user' => function ($query) {
+                $query->withTrashed(); // Include soft-deleted users
+            },
+            'surat_1',
+            'surat_2',
+        ])->orderBy('created_at', 'desc'); // Order by created_at in descending order
 
         // Search functionality
         if ($request->has('search')) {
             $search = $request->input('search');
             $hafalanQuery->where(function ($query) use ($search) {
-                $query->whereHas('user', function ($subquery) use ($search) {
-                    $subquery->withTrashed()->where('name', 'LIKE', '%' . $search . '%');
-                })
+                $query
+                    ->whereHas('user', function ($subquery) use ($search) {
+                        $subquery->withTrashed()->where('name', 'LIKE', '%' . $search . '%');
+                    })
                     ->orWhereHas('surat_1', function ($subquery) use ($search) {
                         $subquery->where('nama_surat', 'LIKE', '%' . $search . '%');
                     })
@@ -186,15 +197,14 @@ class AdminC extends Controller
         $hafalan->status = $request->input('status', 'belum diperiksa');
         $hafalan->kelancaran = $request->input('kelancaran', null);
         $hafalan->ulang = $request->input('ulang', 'belum diperiksa');
-        $hafalan->tanggal_hafalan = $request->input('tanggal_hafalan');;
+        $hafalan->tanggal_hafalan = $request->input('tanggal_hafalan');
         //$hafalan->tanggal_hafalan = $request->input('tanggal_hafalan');
 
         // Cek apakah ada file hafalan yang diupload
         if ($request->hasFile('file_hafalan') && $request->file('file_hafalan')->isValid()) {
-
             // Upload gambar baru
             $file_hafalan = $request->file('file_hafalan');
-            $file_name = date('ymdhis') . ".mp3"; // Ekstensi MP3
+            $file_name = date('ymdhis') . '.mp3'; // Ekstensi MP3
             $file_hafalan->move(public_path('file/hafalan/'), $file_name);
             $hafalan->file_hafalan = $file_name;
         }
@@ -259,7 +269,7 @@ class AdminC extends Controller
         if ($request->hasFile('file_hafalan') && $request->file('file_hafalan')->isValid()) {
             // Upload file hafalan baru
             $file_hafalan = $request->file('file_hafalan');
-            $file_name = date('ymdhis') . ".mp3"; // Ekstensi MP3
+            $file_name = date('ymdhis') . '.mp3'; // Ekstensi MP3
             $file_hafalan->move(public_path('file/hafalan/'), $file_name);
             $hafalan->file_hafalan = $file_name;
         }
@@ -295,7 +305,7 @@ class AdminC extends Controller
         if ($request->hasFile('catatan_suara') && $request->file('catatan_suara')->isValid()) {
             // Upload file baru
             $catatan_suara = $request->file('catatan_suara');
-            $suara_name = date('ymdhis') . ".mp3"; // Ekstensi MP3
+            $suara_name = date('ymdhis') . '.mp3'; // Ekstensi MP3
             $catatan_suara->move(public_path('file/catatan_suara/'), $suara_name);
 
             // Simpan nama file ke database
@@ -333,7 +343,6 @@ class AdminC extends Controller
         return redirect('admin/daftar-hafalan')->with('success', 'Data hafalan berhasil dihapus.');
     }
 
-
     public function daftarAkun(Request $request)
     {
         $akunQuery = User::where('role', 'ustad');
@@ -342,7 +351,8 @@ class AdminC extends Controller
         if ($request->has('search')) {
             $search = $request->input('search');
             $akunQuery->where(function ($query) use ($search) {
-                $query->where('name', 'LIKE', '%' . $search . '%')
+                $query
+                    ->where('name', 'LIKE', '%' . $search . '%')
                     ->orWhere('email', 'LIKE', '%' . $search . '%')
                     ->orWhere('role', 'LIKE', '%' . $search . '%');
             });
@@ -351,7 +361,7 @@ class AdminC extends Controller
         $akun = $akunQuery->paginate($request->input('per_page', 10));
 
         $title = 'Hapus Data Akun?';
-        $text = "Apakah anda yakin ingin menghapus data ini?";
+        $text = 'Apakah anda yakin ingin menghapus data ini?';
         confirmDelete($title, $text);
 
         return view('pages.daftar-akun', compact('akun'));
@@ -370,11 +380,7 @@ class AdminC extends Controller
 
         $request->validate([
             'name' => 'required|string',
-            'email' => [
-                'required',
-                'email',
-                Rule::unique('users')->ignore($users->id),
-            ],
+            'email' => ['required', 'email', Rule::unique('users')->ignore($users->id)],
             'role' => 'required|in:admin,ustad,santri',
         ]);
 
@@ -416,7 +422,7 @@ class AdminC extends Controller
         $halaqoh = Halaqoh::paginate($request->input('per_page', 10));
 
         $title = 'Hapus Data Halaqoh?';
-        $text = "Apakah anda yakin ingin menghapus data ini?";
+        $text = 'Apakah anda yakin ingin menghapus data ini?';
         confirmDelete($title, $text);
 
         return view('pages.daftar-halaqoh', compact('halaqoh'));
@@ -486,7 +492,7 @@ class AdminC extends Controller
         // Use the query builder to get a paginated result
         $kelas = Kelas::paginate($request->input('per_page', 10));
         $title = 'Hapus Data Kelas?';
-        $text = "Apakah anda yakin ingin menghapus data ini?";
+        $text = 'Apakah anda yakin ingin menghapus data ini?';
         confirmDelete($title, $text);
 
         return view('pages.daftar-kelas', compact('kelas'));
@@ -538,7 +544,7 @@ class AdminC extends Controller
         // Use the query builder to get a paginated result
         $santri = Santri::paginate($request->input('per_page', 10));
         $title = 'Hapus Data Santri?';
-        $text = "Apakah anda yakin ingin menghapus data ini?";
+        $text = 'Apakah anda yakin ingin menghapus data ini?';
         confirmDelete($title, $text);
 
         return view('pages.daftar-santri', compact('santri'));
@@ -581,14 +587,14 @@ class AdminC extends Controller
 
             return redirect('admin/daftar-santri')->with('success', 'Data santri berhasil ditambah.');
         } catch (\Exception $e) {
-            if ($e->errorInfo[1] == 1062) { // Error code for duplicate entry
+            if ($e->errorInfo[1] == 1062) {
+                // Error code for duplicate entry
                 return redirect()->back()->with('error', 'Email atau Nomor Induk sudah digunakan.');
             } else {
                 return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan data.');
             }
         }
     }
-
 
     public function updateSantri($id)
     {
@@ -602,22 +608,30 @@ class AdminC extends Controller
     public function editSantri(Request $request, $id)
     {
         $santri = Santri::findOrFail($id);
+
         $request->validate([
             'halaqoh_id' => 'required',
             'name' => 'required',
-            'email' => 'required',
-            'password' => 'required|confirmed|min:8',
+            'email' => 'required|email',
+            'password' => 'nullable|confirmed|min:8',
         ]);
 
         $santri->update([
             'halaqoh_id' => $request->halaqoh_id,
         ]);
 
-        $santri->user->update([
+        $user = $santri->user;
+
+        $dataUser = [
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        ];
+
+        if ($request->filled('password')) {
+            $dataUser['password'] = Hash::make($request->password);
+        }
+
+        $user->update($dataUser);
 
         return redirect('admin/daftar-santri')->with('success', 'Data santri berhasil diupdate.');
     }

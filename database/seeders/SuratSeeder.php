@@ -135,7 +135,7 @@ class SuratSeeder extends Seeder
             DB::table('surat')->insert([
                 'nama_surat' => $item['nama_surat'],
                 'ayat' => $item['ayat'],
-                'juz' => $item['juz'],
+                // 'juz' => $item['juz'],
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

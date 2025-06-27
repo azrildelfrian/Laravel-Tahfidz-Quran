@@ -10,10 +10,8 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('juz', function (Blueprint $table) {
-            $table->id();
-            $table->integer('juz')->unique();
-            $table->timestamps();
+        Schema::table('hafalan', function (Blueprint $table) {
+            $table->softDeletes();
         });
     }
 
@@ -22,6 +20,8 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('juz');
+        Schema::table('hafalan', function (Blueprint $table) {
+            $table->dropSoftDeletes();
+        });
     }
 };

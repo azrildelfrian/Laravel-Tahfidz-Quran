@@ -41,7 +41,7 @@ class SantriC extends Controller
     {
         $fileName = 'data_hafalan.pdf';
 
-        return Excel::download(new HafalanExport, $fileName, \Maatwebsite\Excel\Excel::DOMPDF);
+        return Excel::download(new HafalanExport(), $fileName, \Maatwebsite\Excel\Excel::DOMPDF);
     }
 
     public function detail($id)
@@ -84,7 +84,6 @@ class SantriC extends Controller
 
     public function daftarHafalan(Request $request)
     {
-
         $user = Auth::user();
         if ($user->role !== 'santri') {
             abort(404, 'Not Found');
@@ -92,15 +91,17 @@ class SantriC extends Controller
 
         $userId = Auth::id();
         $hafalanQuery = Hafalan::with(['surat_1', 'surat_2'])
-            ->where('user_id', $userId)->orderBy('created_at', 'desc');
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc');
         // ->where('ulang', 'mengulang'); // Add this condition to filter by 'mengulang'
 
         if ($request->has('search')) {
             $search = $request->input('search');
             $hafalanQuery->where(function ($query) use ($search) {
-                $query->orWhereHas('surat_1', function ($subquery) use ($search) {
-                    $subquery->where('nama_surat', 'LIKE', '%' . $search . '%');
-                })
+                $query
+                    ->orWhereHas('surat_1', function ($subquery) use ($search) {
+                        $subquery->where('nama_surat', 'LIKE', '%' . $search . '%');
+                    })
                     ->orWhereHas('surat_2', function ($subquery) use ($search) {
                         $subquery->where('nama_surat', 'LIKE', '%' . $search . '%');
                     })
@@ -109,7 +110,6 @@ class SantriC extends Controller
                     ->orWhere('ulang', 'LIKE', '%' . $search . '%');
             });
         }
-
 
         $hafalan = $hafalanQuery->paginate($request->input('per_page', 10));
         $surat = Surat::all();
@@ -124,7 +124,7 @@ class SantriC extends Controller
             abort(404, 'Not Found');
         }
         $hafalan = Hafalan::with(['surat_1', 'surat_2'])->get();
-        $surat = Surat::all();
+$surat = \App\Models\Surat::all()->keyBy('id')->toArray();
         $users = User::all();
 
         return view('pages.tambah-hafalan', compact('users', 'hafalan', 'surat'));
@@ -138,15 +138,16 @@ class SantriC extends Controller
         }
         $isAdmin = Auth::user()->role === 'admin';
 
-        $hafalanQuery = Hafalan::with(['user', 'surat_1', 'surat_2'])->orderBy('created_at', 'desc');;
+        $hafalanQuery = Hafalan::with(['user', 'surat_1', 'surat_2'])->orderBy('created_at', 'desc');
 
         // Tambahkan kondisi pencarian jika parameter 'search' ada di URL
         if ($request->has('search')) {
             $search = $request->input('search');
             $hafalanQuery->where(function ($query) use ($search) {
-                $query->whereHas('user', function ($subquery) use ($search) {
-                    $subquery->where('name', 'LIKE', '%' . $search . '%');
-                })
+                $query
+                    ->whereHas('user', function ($subquery) use ($search) {
+                        $subquery->where('name', 'LIKE', '%' . $search . '%');
+                    })
                     ->orWhereHas('surat_1', function ($subquery) use ($search) {
                         $subquery->where('nama_surat', 'LIKE', '%' . $search . '%');
                     })
@@ -168,7 +169,6 @@ class SantriC extends Controller
         return view('pages.riwayat-hafalan', compact('users', 'hafalan', 'surat'));
     }
 
-
     public function store(Request $request)
     {
         $user = Auth::user();
@@ -176,6 +176,8 @@ class SantriC extends Controller
             abort(404, 'Not Found');
         }
         $request->validate([
+            'surat_id' => 'required|exists:surat,id',
+            'surat_id_2' => 'nullable|exists:surat,id',
             'file' => 'max:0', // 0 berarti tanpa batasan
         ]);
         // Buat instansiasi model Hafalan
@@ -194,10 +196,9 @@ class SantriC extends Controller
 
         // Cek apakah ada file hafalan yang diupload
         if ($request->hasFile('file_hafalan') && $request->file('file_hafalan')->isValid()) {
-
             // Upload gambar baru
             $file_hafalan = $request->file('file_hafalan');
-            $file_name = date('ymdhis') . ".mp3"; // Ekstensi MP3
+            $file_name = date('ymdhis') . '.mp3'; // Ekstensi MP3
             $file_hafalan->move(public_path('file/hafalan/'), $file_name);
             $hafalan->file_hafalan = $file_name;
         }
@@ -239,7 +240,7 @@ class SantriC extends Controller
         if ($request->hasFile('file_hafalan') && $request->file('file_hafalan')->isValid()) {
             // Upload file hafalan baru
             $file_hafalan = $request->file('file_hafalan');
-            $file_name = date('ymdhis') . ".mp3"; // Ekstensi MP3
+            $file_name = date('ymdhis') . '.mp3'; // Ekstensi MP3
             $file_hafalan->move(public_path('file/hafalan/'), $file_name);
             $hafalan->file_hafalan = $file_name;
         }
