@@ -43,7 +43,8 @@
                     <tr>
                         @if (Auth::user()->role === 'admin' || Auth::user()->role === 'ustad')
                             <td><i class="fab fa-angular fa-lg text-danger me-3"></i>
-                                <strong>{{ $item->user->name }}</strong></td>
+                                <strong>{{ $item->user->name }}</strong>
+                            </td>
                         @endif
                         <td>{{ $item->user->email }}</td>
                         <td>{{ $item->halaqoh->nama_halaqoh }}</td>
@@ -55,10 +56,10 @@
                                     <i class="ti ti-dots-vertical"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a href="{{ route('admin.edit-santri', $item->id) }}"
-                                        class="dropdown-item bg-dark text-white">
-                                        <i class="ti ti-eye me-1"></i> Detail</a>
                                     @if (Auth::user()->role === 'admin')
+                                        <a href="{{ route('admin.edit-santri', $item->id) }}"
+                                            class="dropdown-item bg-dark text-white">
+                                            <i class="ti ti-eye me-1"></i> Detail</a>
                                         <a href="{{ route('admin.edit-santri', $item->id) }}"
                                             class="dropdown-item bg-warning text-white">
                                             <i class="ti ti-edit me-1"></i> Edit</a>

@@ -27,6 +27,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/', function () {
+        $role = auth()->user()->role;
+
+        return match ($role) {
+            'admin' => redirect()->route('admin.dashboard'),
+            'ustad' => redirect()->route('ustad.dashboard-ustad'),
+            'santri' => redirect()->route('dashboard'),
+            default => abort(403),
+        };
+    });
+
+    Route::get('/dashboard', function () {
+        $role = auth()->user()->role;
+
+        return match ($role) {
+            'admin' => redirect()->route('admin.dashboard'),
+            'ustad' => redirect()->route('ustad.dashboard-ustad'),
+            'santri' => redirect()->route('dashboard'),
+            default => abort(403),
+        };
+    });
 });
 
 require __DIR__ . '/auth.php';

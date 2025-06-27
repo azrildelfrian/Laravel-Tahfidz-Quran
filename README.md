@@ -99,7 +99,64 @@ php artisan serve
 
 ## 📷 Screenshot
 
-_(Coming soon.)_
+Berikut adalah cuplikan antarmuka dari aplikasi **Hafalanqu** berdasarkan peran pengguna:
+
+---
+
+### 🔐 Login
+
+![Login](/screenshot/Hafalanqu-Login.png)
+
+---
+
+### 🧑‍💼 Admin
+
+-   **Dashboard**  
+    ![Admin Dashboard](/screenshot/Admin-Dashboard.png)
+
+-   **Daftar Hafalan**  
+    ![Admin Daftar Hafalan](/screenshot/Admin-DaftarHafalan.png)
+
+-   **Detail Hafalan**  
+    ![Admin Detail](/screenshot/Admin-Detail.png)
+
+-   **Data Halaqoh**  
+    ![Admin Halaqoh](/screenshot/Admin-Halaqoh.png)
+
+-   **Data Kelas**  
+    ![Admin Kelas](/screenshot/Admin-Kelas.png)
+
+-   **Data Santri**  
+    ![Admin Santri](/screenshot/Admin-Santri.png)
+
+-   **Data Ustad**  
+    ![Admin Ustad](/screenshot/Admin-Ustad.png)
+
+---
+
+### 🧑‍🏫 Ustad
+
+-   **Dashboard**  
+    ![Ustad Dashboard](/screenshot/Ustad-Dashboard.png)
+
+-   **Detail Santri**  
+    ![Ustad Detail](/screenshot/Ustad-Detail.png)
+
+-   **Periksa Hafalan**  
+    ![Ustad Periksa](/screenshot/Ustad-Periksa.png)
+
+---
+
+### 🧑‍🎓 Santri
+
+-   **Dashboard**  
+    ![Santri Dashboard](/screenshot/Santri-Dashboard.png)
+
+-   **Revisi Hafalan**  
+    ![Santri Revisi](/screenshot/Santri-Revisi.png)
+
+-   **Riwayat Hafalan**  
+    ![Santri Riwayat](/screenshot/Santri-Riwayat.png)
 
 ---
 
