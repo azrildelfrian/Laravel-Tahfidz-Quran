@@ -139,7 +139,7 @@ Berikut adalah cuplikan antarmuka dari aplikasi **Hafalanqu** berdasarkan peran 
 -   **Dashboard**  
     ![Ustad Dashboard](/screenshot/Ustad-Dashboard.png)
 
--   **Detail Santri**  
+-   **Detail Hafalan Santri**  
     ![Ustad Detail](/screenshot/Ustad-Detail.png)
 
 -   **Periksa Hafalan**  
@@ -151,6 +151,9 @@ Berikut adalah cuplikan antarmuka dari aplikasi **Hafalanqu** berdasarkan peran 
 
 -   **Dashboard**  
     ![Santri Dashboard](/screenshot/Santri-Dashboard.png)
+
+-   **Tambah Hafalan**  
+    ![Santri Revisi](/screenshot/Santri-Tambah.png)
 
 -   **Revisi Hafalan**  
     ![Santri Revisi](/screenshot/Santri-Revisi.png)
