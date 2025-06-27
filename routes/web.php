@@ -103,16 +103,20 @@ Route::middleware(['auth', 'role:ustad'])->group(function () {
     Route::get('ustad/daftar-santri', [UstadC::class, 'daftarSantri'])->name('pages.daftar-santri');
 });
 
-Route::get('/dashboard', [SantriC::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
-Route::get('/daftar-hafalan', [SantriC::class, 'daftarHafalan'])->name('pages.daftar-hafalan');
-Route::get('/tambah-hafalan', [SantriC::class, 'tambahHafalan'])->name('pages.tambah-hafalan');
-Route::get('/riwayat-hafalan', [SantriC::class, 'riwayatHafalan'])->name('pages.riwayat-hafalan');
-Route::get('/detail-hafalan/{id}', [SantriC::class, 'detail'])->name('pages.detail-hafalan');
-Route::post('hafalan/store', [SantriC::class, 'store'])->name('santri.hafalan.store');
-Route::get('/detail-hafalan/{id}', [SantriC::class, 'detail'])->name('pages.detail-hafalan');
-Route::get('/edit-hafalan/{id}', [SantriC::class, 'revisi'])->name('pages.edit-hafalan');
-Route::patch('santri/hafalan/edit/{id}', [SantriC::class, 'edit'])->name('santri.hafalan.edit');
-Route::get('riwayat-hafalan/export/', [AdminC::class, 'export']);
+Route::middleware(['auth', 'role:santri'])->group(function () {
+
+    Route::get('/dashboard', [SantriC::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
+    Route::get('/daftar-hafalan', [SantriC::class, 'daftarHafalan'])->name('pages.daftar-hafalan');
+    Route::get('/tambah-hafalan', [SantriC::class, 'tambahHafalan'])->name('pages.tambah-hafalan');
+    Route::get('/riwayat-hafalan', [SantriC::class, 'riwayatHafalan'])->name('pages.riwayat-hafalan');
+    Route::get('/detail-hafalan/{id}', [SantriC::class, 'detail'])->name('pages.detail-hafalan');
+    Route::post('hafalan/store', [SantriC::class, 'store'])->name('santri.hafalan.store');
+    Route::get('/detail-hafalan/{id}', [SantriC::class, 'detail'])->name('pages.detail-hafalan');
+    Route::get('/edit-hafalan/{id}', [SantriC::class, 'revisi'])->name('pages.edit-hafalan');
+    Route::patch('santri/hafalan/edit/{id}', [SantriC::class, 'edit'])->name('santri.hafalan.edit');
+    Route::get('riwayat-hafalan/export/', [AdminC::class, 'export']);
+});
+
 
 // Route::middleware(['auth', 'checkHafalanAccess'])->group(function () {
 //     Route::get('/home', [SantriC::class, 'dashboard'])->name('dashboard');

@@ -124,7 +124,7 @@ class SantriC extends Controller
             abort(404, 'Not Found');
         }
         $hafalan = Hafalan::with(['surat_1', 'surat_2'])->get();
-$surat = \App\Models\Surat::all()->keyBy('id')->toArray();
+        $surat = \App\Models\Surat::all()->keyBy('id')->toArray();
         $users = User::all();
 
         return view('pages.tambah-hafalan', compact('users', 'hafalan', 'surat'));
