@@ -104,7 +104,6 @@ Route::middleware(['auth', 'role:ustad'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:santri'])->group(function () {
-
     Route::get('/dashboard', [SantriC::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
     Route::get('/daftar-hafalan', [SantriC::class, 'daftarHafalan'])->name('pages.daftar-hafalan');
     Route::get('/tambah-hafalan', [SantriC::class, 'tambahHafalan'])->name('pages.tambah-hafalan');
